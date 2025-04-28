@@ -15,4 +15,9 @@ interface UserDao {
 
     @Insert
     suspend fun insertUser(user: UserModel): Long
+
+    @Query("SELECT * FROM users WHERE email=:email AND password=:password")
+    suspend fun getUser(email : String, password : String) : UserModel?
+    @Query("SELECT * FROM users WHERE email=:email")
+    suspend fun getUserByEmail(email : String) : UserModel?
 }
