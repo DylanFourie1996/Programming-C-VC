@@ -8,15 +8,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.coinquestfinancialxp.navigation.Screen
+import com.example.coinquestfinancialxp.ui.screens.LoginScreen
 
 data class BottomNavItem(
     val route: String,
     val title: String,
     val icon: ImageVector
 )
+
+@Preview(showBackground = true)
+@Composable
+fun BottomNavBarPreview()
+{
+    val navController = rememberNavController()
+    BottomNavBar(navController=navController)
+}
 
 @Composable
 fun BottomNavBar(navController: NavController) {

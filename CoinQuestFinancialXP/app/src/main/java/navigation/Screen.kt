@@ -7,4 +7,5 @@ object Screen {
     val Home = ScreenItem("home", "Home")
     val Profile = ScreenItem("profile", "Profile")
     val Settings = ScreenItem("settings", "Settings")
+    val Register = ScreenItem("register", "Register")
 }
