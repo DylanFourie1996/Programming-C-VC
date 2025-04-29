@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
+import ui.CustomComposables.StandardButton
+import ui.CustomComposables.StandardTextBox
 
 
 @Composable
@@ -42,6 +46,8 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
 
     val loginRegisterViewModel : LoginRegisterViewModel = viewModel(factory= LoginRegisterViewModelFactory(context))
 
+    val labelFontSize=12.sp
+
     var email by remember { mutableStateOf("") }
     var password by remember {mutableStateOf("")}
     var name by remember {mutableStateOf("")}
@@ -52,73 +58,102 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Register")
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Name")
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value=name,
-            onValueChange={name=it},
-            label={Text("Enter your name!")},
-            modifier=Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Email")
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value=email,
-            onValueChange={email=it},
-            label={Text("Enter your email!")},
-            modifier=Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Password")
-        Spacer(modifier = Modifier.height(16.dp))
-        TextField(
-            value=password,
-            onValueChange={password=it},
-            label={Text("Enter your password!")},
-            modifier=Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            // Grab RegisterViewModel
-            loginRegisterViewModel.register(name, email, password) { success, userExists, validEmail, validPassword ->
-                if (success) {
-                    println("Register successful!")
-                    println("New Account:\nName: $name\nEmail: $email\nPassword: $password")
-                    onRegisterSuccess(email) // pass email
-                } else {
-                    if (userExists) {
-                        println("User already exists.")
-                    }
-                    if (!validEmail) {
-                        println("Email does not meet the requirements.")
-                    }
-                    if (!validPassword) {
-                        println("Password does not meet the requirements.")
-                    }
-                    println("Register failed.")
-                    // To-Do: Let the user know why the registration failed:
-                }
-            }
-        }) {
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
             Text("Register")
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            "Already have an account? Login here.",
-            fontSize=if (!isPressed) 10.sp else 9.sp,
-            color = if (!isPressed) customColors.hyperlinkDefault else customColors.hyperlinkHover,
-            modifier = Modifier.clickable(
-                interactionSource=interactionSource,
-                indication = null)
-            {
-                navController.navigate(Screen.Login.route)
+        Column(
+            modifier = Modifier.fillMaxWidth().weight(1.0f).padding(start=16.dp, end=16.dp, top=32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement= Arrangement.Top
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Column() {
+                Text("Enter your full name", fontSize=labelFontSize)
+                Spacer(modifier = Modifier.height(16.dp))
+                StandardTextBox(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = "Full Name",
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
-        )
+            Spacer(modifier = Modifier.height(16.dp))
+            Column() {
+                Text("Enter your email", fontSize=labelFontSize)
+                Spacer(modifier = Modifier.height(16.dp))
+                StandardTextBox(
+                    value = email,
+                    onValueChange = { email = it },
+                    placeholder = "Email",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Column() {
+                Text("Enter your password", fontSize=labelFontSize)
+                Spacer(modifier = Modifier.height(16.dp))
+                StandardTextBox(
+                    value = password,
+                    onValueChange = { password = it },
+                    placeholder = "Password",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            StandardButton(
+                text = "Register",
+                onClick = {
+                    // Grab RegisterViewModel
+                    loginRegisterViewModel.register(
+                        name,
+                        email,
+                        password
+                    ) { success, userExists, validEmail, validPassword ->
+                        if (success) {
+                            println("Register successful!")
+                            println("New Account:\nName: $name\nEmail: $email\nPassword: $password")
+                            onRegisterSuccess(email) // pass email
+                        } else {
+                            if (userExists) {
+                                println("User already exists.")
+                            }
+                            if (!validEmail) {
+                                println("Email does not meet the requirements.")
+                            }
+                            if (!validPassword) {
+                                println("Password does not meet the requirements.")
+                            }
+                            println("Register failed.")
+                            // To-Do: Let the user know why the registration failed:
+                        }
+                    }
+                })
+            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Row() {
+                Text("Already have an account? ",
+                    fontSize=10.sp,
+                    color=customColors.hyperlinkInactive)
+                Text(
+                    "Login",
+                    fontSize = if (!isPressed) 10.sp else 9.sp,
+                    color = if (!isPressed) customColors.hyperlinkDefault else customColors.hyperlinkHover,
+                    modifier = Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
+                    {
+                        navController.navigate(Screen.Login.route)
+                    }
+                )
+            }
+            Spacer(modifier=Modifier.height(32.dp))
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.theme
 
+import Font.AppTypography
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -39,13 +40,33 @@ private val LightColorScheme = lightColorScheme(
 // Custom Color Data Class
 data class CustomColors(
     val hyperlinkDefault: Color,
-    val hyperlinkHover: Color
+    val hyperlinkHover: Color,
+    val hyperlinkInactive : Color,
+    val ActionButtonTop : Color,
+    val ActionButtonBot : Color,
+    val ActionButtonText : Color,
+    val ActionButton2Top : Color,
+    val ActionButton2Bot : Color,
+    val ActionButton2Text : Color,
+    val TextBoxBorder : Color,
+    val TextBoxBG : Color,
+    val TextBoxText : Color
 )
 
 val LocalCustomColors = staticCompositionLocalOf {
     CustomColors(
         hyperlinkDefault = TextBlack,
-        hyperlinkHover = TextBlackHover
+        hyperlinkHover = TextBlackHover,
+        hyperlinkInactive = TextInactive,
+        ActionButtonTop=LightBlue,
+        ActionButtonBot=DarkBlue,
+        ActionButtonText=White,
+        ActionButton2Top=LightBlack,
+        ActionButton2Bot=DarkBlack,
+        ActionButton2Text=White,
+        TextBoxText=DarkGrey,
+        TextBoxBorder=MidGrey,
+        TextBoxBG=LightGrey
     )
 }
 
@@ -71,12 +92,32 @@ fun CoinQuestFinancialXPTheme(
     val customColors = if (!darkTheme) {
         CustomColors(
             hyperlinkDefault = TextBlack,
-            hyperlinkHover = TextBlackHover
+            hyperlinkHover = TextBlackHover,
+            hyperlinkInactive = TextInactive,
+            ActionButtonTop=LightBlue,
+            ActionButtonBot=DarkBlue,
+            ActionButtonText=White,
+            ActionButton2Top=LightBlack,
+            ActionButton2Bot=DarkBlack,
+            ActionButton2Text=White,
+            TextBoxText=DarkGrey,
+            TextBoxBorder=MidGrey,
+            TextBoxBG=LightGrey
         )
     } else {
         CustomColors(
-            hyperlinkDefault = TextWhite,
-            hyperlinkHover = TextWhiteHover
+            hyperlinkDefault = TextBlack,
+            hyperlinkHover = TextBlackHover,
+            hyperlinkInactive = TextInactive,
+            ActionButtonTop=LightBlue,
+            ActionButtonBot=DarkBlue,
+            ActionButtonText=White,
+            ActionButton2Top=LightBlack,
+            ActionButton2Bot=DarkBlack,
+            ActionButton2Text=White,
+            TextBoxText=DarkGrey,
+            TextBoxBorder=MidGrey,
+            TextBoxBG=LightGrey
         )
     }
 
@@ -84,7 +125,7 @@ fun CoinQuestFinancialXPTheme(
     {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = Typography,
+            typography = AppTypography,
             content = content
         )
     }
