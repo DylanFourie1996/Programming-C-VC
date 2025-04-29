@@ -83,7 +83,8 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                     loginRegisterViewModel.login(
                         email,
                         password
-                    ) { success, userExists, passwordMatches ->
+                    ) { success, userExists, passwordMatches, message ->
+                        print(message)
                         if (success) {
                             print("Logged in!")
                             onLoginSuccess()
