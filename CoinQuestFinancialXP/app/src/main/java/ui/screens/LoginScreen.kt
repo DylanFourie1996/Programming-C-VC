@@ -29,7 +29,6 @@ import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 
-
 @Composable
 fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -84,9 +83,9 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                         email,
                         password
                     ) { success, userExists, passwordMatches, message ->
-                        print(message)
+                        println(message)
                         if (success) {
-                            print("Logged in!")
+                            println("Logged in!")
                             onLoginSuccess()
                         } else {
                             // To-Do: Let the user know why the login failed.

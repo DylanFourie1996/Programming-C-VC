@@ -113,7 +113,9 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                         name,
                         email,
                         password
-                    ) { success, userExists, validEmail, validPassword ->
+                    ) { success, userExists, validEmail, validPassword, message ->
+                        
+                        print(message)
                         if (success) {
                             println("Register successful!")
                             println("New Account:\nName: $name\nEmail: $email\nPassword: $password")
