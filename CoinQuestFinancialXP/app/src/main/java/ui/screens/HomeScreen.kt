@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,8 +25,8 @@ fun HomeScreenPreview()
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    BackHandler {  }
     Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

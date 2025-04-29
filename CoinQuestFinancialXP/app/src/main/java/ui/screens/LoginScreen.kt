@@ -2,7 +2,9 @@ package com.example.coinquestfinancialxp.ui.screens
 
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -32,6 +34,7 @@ import ui.CustomComposables.StandardTextBox
 
 @Composable
 fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: () -> Unit) {
+    BackHandler {  }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -49,12 +52,11 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
     var password by remember {mutableStateOf("")}
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(modifier=Modifier.fillMaxWidth().padding(bottom=75.dp), contentAlignment=Alignment.Center) {
+        Box(modifier=Modifier.fillMaxWidth().padding(bottom=50.dp), contentAlignment=Alignment.Center) {
             Text("Login")
         }
         Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement= Arrangement.Center) {

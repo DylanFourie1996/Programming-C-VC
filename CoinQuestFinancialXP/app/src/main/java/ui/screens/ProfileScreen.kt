@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -14,8 +15,8 @@ import com.example.coinquestfinancialxp.ui.BottomNavBar
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
+    BackHandler {  }
     Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

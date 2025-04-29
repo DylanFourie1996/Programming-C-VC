@@ -2,6 +2,7 @@ package ui.screens
 
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -38,6 +39,9 @@ import ui.CustomComposables.StandardTextBox
 
 @Composable
 fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> Unit) {
+
+
+    BackHandler {}
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
