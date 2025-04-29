@@ -9,8 +9,8 @@ import com.example.coinquestfinancialxp.ui.screens.*
 import ui.screens.RegisterScreen
 
 @Composable
-fun Navigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Login.route) {
+fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onToggleTheme: () -> Unit) {
+    NavHost(navController = navController, startDestination = Screen.Login.route) { // CHANGE BACK TO LOGIN.ROUTE
         composable(route=Screen.Login.route+"?email={email}",
             arguments = listOf(
                 navArgument("email") {
@@ -32,7 +32,7 @@ fun Navigation(navController: NavHostController) {
             ProfileScreen(navController)
         }
         composable(Screen.Settings.route) {
-            SettingsScreen(navController)
+            SettingsScreen(navController, isDarkTheme, onToggleTheme)
         }
         composable(Screen.Register.route) {
             RegisterScreen(navController, onRegisterSuccess = { email ->

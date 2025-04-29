@@ -1,6 +1,9 @@
 package com.example.coinquestfinancialxp.ui.theme
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LinearGradient
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
@@ -26,6 +29,23 @@ val DarkBlue = Color(0xFF0090CE)
 val White = Color(0xFFFFFFFF)
 val LightBlack = Color(0xFF151515)
 val DarkBlack = Color(0xFF000000)
+val GradientOrange = Brush.linearGradient(
+    colors = listOf(
+        Color(0xFFFFCB01),
+        Color(0xFFFF9E01)
+    ),
+    start=Offset(0f, 50f),
+    end=Offset(Float.POSITIVE_INFINITY, 50f)
+)
+
+val GradientDark = Brush.linearGradient(
+    colors = listOf(
+        Color(0xFF444552),
+        Color(0xFF151515)
+    ),
+    start=Offset(0f, 50f),
+    end=Offset(Float.POSITIVE_INFINITY, 50f)
+)
 
 // Text Boxes
 val DarkGrey = Color(0xFF959595)

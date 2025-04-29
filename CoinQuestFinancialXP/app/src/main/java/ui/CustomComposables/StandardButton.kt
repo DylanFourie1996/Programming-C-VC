@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,9 @@ import kotlinx.coroutines.flow.collectLatest
 
 enum class StandardButtonTheme {
     BLUE,
-    BLACK
+    BLACK,
+    ORANGEGRAND,
+    DARKGRAND
 }
 @Composable
 fun StandardButton(
@@ -47,6 +50,8 @@ fun StandardButton(
     var colorButtonTop = customColors.ActionButtonTop
     var colorButtonBot = customColors.ActionButtonBot
     var colorButtonText = customColors.ActionButtonText
+    var colorButtonBackground = customColors.ActionButton3Top
+    var useBackground = false
 
     // Chahnge button colours based on theme specified. Default =  BLUE
     when (themeType) {
@@ -54,6 +59,20 @@ fun StandardButton(
             colorButtonTop = customColors.ActionButton2Top
             colorButtonBot = customColors.ActionButton2Bot
             colorButtonText = customColors.ActionButton2Text
+        }
+        StandardButtonTheme.ORANGEGRAND -> {
+            colorButtonTop = Color.Transparent
+            colorButtonBot = customColors.ActionButton3Bot
+            colorButtonText = customColors.ActionButton3Text
+            colorButtonBackground = customColors.ActionButton3Top
+            useBackground = true
+        }
+        StandardButtonTheme.DARKGRAND -> {
+            colorButtonTop = Color.Transparent
+            colorButtonBot = customColors.ActionButton4Bot
+            colorButtonText = customColors.ActionButton4Text
+            colorButtonBackground = customColors.ActionButton4Top
+            useBackground = true
         }
         else -> {
             colorButtonTop = customColors.ActionButtonTop
@@ -94,7 +113,13 @@ fun StandardButton(
 
         Button(
             onClick=onClick,
-            modifier= Modifier.fillMaxWidth().fillMaxHeight().offset(y=animatedOffset),
+            modifier= Modifier.fillMaxWidth().fillMaxHeight().offset(y=animatedOffset).then(
+                if (useBackground) {
+                    Modifier.background(colorButtonBackground, RoundedCornerShape(cornerRadius))
+                } else {
+                    Modifier
+                }
+            ),
             shape= RoundedCornerShape(cornerRadius),
             enabled=enabled,
             interactionSource=interactionSource,

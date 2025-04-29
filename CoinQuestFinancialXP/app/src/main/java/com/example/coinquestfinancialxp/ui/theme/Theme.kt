@@ -12,6 +12,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -48,6 +49,12 @@ data class CustomColors(
     val ActionButton2Top : Color,
     val ActionButton2Bot : Color,
     val ActionButton2Text : Color,
+    val ActionButton3Top : Brush,
+    val ActionButton3Bot : Color,
+    val ActionButton3Text : Color,
+    val ActionButton4Top : Brush,
+    val ActionButton4Bot : Color,
+    val ActionButton4Text : Color,
     val TextBoxBorder : Color,
     val TextBoxBG : Color,
     val TextBoxText : Color
@@ -64,6 +71,12 @@ val LocalCustomColors = staticCompositionLocalOf {
         ActionButton2Top=LightBlack,
         ActionButton2Bot=DarkBlack,
         ActionButton2Text=White,
+        ActionButton3Top=GradientOrange,
+        ActionButton3Bot=DarkGrey,
+        ActionButton3Text=White,
+        ActionButton4Top=GradientDark,
+        ActionButton4Bot=DarkGrey,
+        ActionButton4Text=White,
         TextBoxText=DarkGrey,
         TextBoxBorder=MidGrey,
         TextBoxBG=LightGrey
@@ -100,6 +113,12 @@ fun CoinQuestFinancialXPTheme(
             ActionButton2Top=LightBlack,
             ActionButton2Bot=DarkBlack,
             ActionButton2Text=White,
+            ActionButton3Top=GradientOrange,
+            ActionButton3Bot=DarkGrey,
+            ActionButton3Text=White,
+            ActionButton4Top=GradientDark,
+            ActionButton4Bot=DarkGrey,
+            ActionButton4Text=White,
             TextBoxText=DarkGrey,
             TextBoxBorder=MidGrey,
             TextBoxBG=LightGrey
@@ -115,6 +134,12 @@ fun CoinQuestFinancialXPTheme(
             ActionButton2Top=LightBlack,
             ActionButton2Bot=DarkBlack,
             ActionButton2Text=White,
+            ActionButton3Top=GradientOrange,
+            ActionButton3Bot=DarkGrey,
+            ActionButton3Text=White,
+            ActionButton4Top=GradientDark,
+            ActionButton4Bot=DarkGrey,
+            ActionButton4Text=White,
             TextBoxText=DarkGrey,
             TextBoxBorder=MidGrey,
             TextBoxBG=LightGrey
