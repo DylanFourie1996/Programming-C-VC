@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,6 +48,16 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
     val loginRegisterViewModel : LoginRegisterViewModel = viewModel(factory= LoginRegisterViewModelFactory(context))
 
     val labelFontSize=12.sp
+
+    var showEmailError by remember { mutableStateOf(false) }
+    var showPasswordError by remember {mutableStateOf(false) }
+    var showNameError by remember {mutableStateOf(false)}
+    var showAccountError by remember {mutableStateOf(false)}
+
+    var nameErrorMessage by remember { mutableStateOf("") }
+    var emailErrorMessage by remember { mutableStateOf("") }
+    var passwordErrorMessage by remember { mutableStateOf("") }
+    var accountErrorMessage by remember { mutableStateOf("") }
 
     var email by remember { mutableStateOf("") }
     var password by remember {mutableStateOf("")}
@@ -79,6 +90,8 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                     placeholder = "Full Name",
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier=Modifier.height(3.dp))
+                if (showNameError) Text(text=nameErrorMessage, fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             }
             Spacer(modifier = Modifier.height(16.dp))
             Column() {
@@ -90,6 +103,8 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                     placeholder = "Email",
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier=Modifier.height(3.dp))
+                if (showEmailError) Text(text=emailErrorMessage, fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -102,8 +117,12 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                     placeholder = "Password",
                     modifier = Modifier.fillMaxWidth()
                 )
+                Spacer(modifier=Modifier.height(3.dp))
+                if (showPasswordError) Text(text=passwordErrorMessage, fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             }
             Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier=Modifier.height(3.dp))
+            if (showAccountError) Text(text=accountErrorMessage, fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             Spacer(modifier = Modifier.height(16.dp))
             StandardButton(
                 text = "Register",
@@ -114,7 +133,11 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                         email,
                         password
                     ) { success, userExists, validEmail, validPassword, message ->
-                        
+                        var msg = message ?: ""
+                        showNameError=  false
+                        showEmailError = false
+                        showPasswordError = false
+                        showAccountError = false
                         print(message)
                         if (success) {
                             println("Register successful!")
@@ -123,12 +146,26 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                         } else {
                             if (userExists) {
                                 println("User already exists.")
+                                showNameError = true
+                                accountErrorMessage = msg
                             }
                             if (!validEmail) {
                                 println("Email does not meet the requirements.")
+                                showEmailError = true
+                                emailErrorMessage = "Email is not valid"
                             }
                             if (!validPassword) {
-                                println("Password does not meet the requirements.")
+                                println("Password does not meet the requirements")
+                                showPasswordError = true
+                                passwordErrorMessage = if (password.length < 8)
+                                    "Password needs to be at least 8 characters long!"
+                                else
+                                    "Password is not valid"
+                            }
+
+                            if (name.isEmpty()) {
+                                showNameError = true
+                                nameErrorMessage = "Please enter a name!"
                             }
                             println("Register failed.")
                             // To-Do: Let the user know why the registration failed:

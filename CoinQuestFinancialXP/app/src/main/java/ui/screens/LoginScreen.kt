@@ -20,6 +20,7 @@ import com.example.coinquestfinancialxp.navigation.Screen
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -37,6 +38,10 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
     val customColors = LocalCustomColors.current
 
     val context = LocalContext.current
+
+    var showEmailError by remember { mutableStateOf(false) }
+
+    var showPasswordError by remember {mutableStateOf(false)}
 
     val loginRegisterViewModel : LoginRegisterViewModel = viewModel(factory= LoginRegisterViewModelFactory(context))
     println("Route Email: $routeEmail")
@@ -67,6 +72,8 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                 placeholder = "Email",
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier=Modifier.height(3.dp))
+            if (showEmailError) Text(text="Email does not exist.", fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             Spacer(modifier = Modifier.height(16.dp))
             StandardTextBox(
                 value = password,
@@ -74,6 +81,8 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                 placeholder = "Password",
                 modifier = Modifier.fillMaxWidth()
             )
+            Spacer(modifier=Modifier.height(3.dp))
+            if (showPasswordError)Text(text="Password entered is incorrect.", fontSize=12.sp, modifier=Modifier.fillMaxWidth(), color=Color(0.7f, 0f, 0f, 1f))
             Spacer(modifier = Modifier.height(24.dp))
             StandardButton(
                 text = "Login",
@@ -84,6 +93,8 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                         password
                     ) { success, userExists, passwordMatches, message ->
                         println(message)
+                        showEmailError = false
+                        showPasswordError = false
                         if (success) {
                             println("Logged in!")
                             onLoginSuccess()
@@ -95,9 +106,13 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                                     println("Uknown error when logging in.")
                                 } else {
                                     println("Password does not match!")
+                                    // Show password not matching
+                                    showPasswordError = true
+
                                 }
                             } else {
                                 println("Account does not exist!")
+                                showEmailError = true
                             }
                             println("Login Failed.")
                         }
