@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.theme
 
+import Font.AppTypography
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -9,6 +10,10 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
@@ -33,6 +38,59 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+// Custom Color Data Class
+data class CustomColors(
+    val hyperlinkDefault: Color,
+    val hyperlinkHover: Color,
+    val hyperlinkInactive : Color,
+    val ActionButtonTop : Color,
+    val ActionButtonBot : Color,
+    val ActionButtonText : Color,
+    val ActionButton2Top : Color,
+    val ActionButton2Bot : Color,
+    val ActionButton2Text : Color,
+    val ActionButton3Top : Brush,
+    val ActionButton3Bot : Color,
+    val ActionButton3Text : Color,
+    val ActionButton4Top : Brush,
+    val ActionButton4Bot : Color,
+    val ActionButton4Text : Color,
+    val TextBoxBorder : Color,
+    val TextBoxBG : Color,
+    val TextBoxText : Color,
+    val ProgressBarColor : Color,
+    val DividerColor1 : Color,
+    val DividerColor2 : Color
+)
+
+val LocalCustomColors = staticCompositionLocalOf {
+    CustomColors(
+        hyperlinkDefault = TextBlack,
+        hyperlinkHover = TextBlackHover,
+        hyperlinkInactive = TextInactive,
+        ActionButtonTop=LightBlue,
+        ActionButtonBot=DarkBlue,
+        ActionButtonText=White,
+        ActionButton2Top=LightBlack,
+        ActionButton2Bot=DarkBlack,
+        ActionButton2Text=White,
+        ActionButton3Top=GradientOrange,
+        ActionButton3Bot=DarkGrey,
+        ActionButton3Text=White,
+        ActionButton4Top=GradientDark,
+        ActionButton4Bot=DarkGrey,
+        ActionButton4Text=White,
+        TextBoxText=DarkGrey,
+        TextBoxBorder=MidGrey,
+        TextBoxBG=LightGrey,
+        ProgressBarColor=TurkishBlue,
+        DividerColor1=Divider1,
+        DividerColor2=Divider2
+    )
+}
+
+
+
 @Composable
 fun CoinQuestFinancialXPTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -50,9 +108,62 @@ fun CoinQuestFinancialXPTheme(
         else -> LightColorScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    val customColors = if (!darkTheme) {
+        CustomColors(
+            hyperlinkDefault = TextBlack,
+            hyperlinkHover = TextBlackHover,
+            hyperlinkInactive = TextInactive,
+            ActionButtonTop=LightBlue,
+            ActionButtonBot=DarkBlue,
+            ActionButtonText=White,
+            ActionButton2Top=LightBlack,
+            ActionButton2Bot=DarkBlack,
+            ActionButton2Text=White,
+            ActionButton3Top=GradientOrange,
+            ActionButton3Bot=DarkGrey,
+            ActionButton3Text=White,
+            ActionButton4Top=GradientDark,
+            ActionButton4Bot=DarkGrey,
+            ActionButton4Text=White,
+            TextBoxText=DarkGrey,
+            TextBoxBorder=MidGrey,
+            TextBoxBG=LightGrey,
+            ProgressBarColor=TurkishBlue,
+            DividerColor1=Divider1,
+            DividerColor2=Divider2
+        )
+    } else {
+        CustomColors(
+            hyperlinkDefault = TextBlack,
+            hyperlinkHover = TextBlackHover,
+            hyperlinkInactive = TextInactive,
+            ActionButtonTop=LightBlue,
+            ActionButtonBot=DarkBlue,
+            ActionButtonText=White,
+            ActionButton2Top=LightBlack,
+            ActionButton2Bot=DarkBlack,
+            ActionButton2Text=White,
+            ActionButton3Top=GradientOrange,
+            ActionButton3Bot=DarkGrey,
+            ActionButton3Text=White,
+            ActionButton4Top=GradientDark,
+            ActionButton4Bot=DarkGrey,
+            ActionButton4Text=White,
+            TextBoxText=DarkGrey,
+            TextBoxBorder=MidGrey,
+            TextBoxBG=LightGrey,
+            ProgressBarColor=TurkishBlue,
+            DividerColor1=Divider1,
+            DividerColor2=Divider2
+        )
+    }
+
+    CompositionLocalProvider(LocalCustomColors provides customColors)
+    {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }
