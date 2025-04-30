@@ -21,7 +21,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
     // Get Session Manager
     val sessionManager = remember { SessionManager.getInstance(context=context) }
 
-    val startDest = if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
+    val startDest = Screen.Profile.route//if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
     NavHost(navController = navController, startDestination = startDest) { // CHANGE BACK TO LOGIN.ROUTE
         composable(route=Screen.Login.route+"?email={email}",
             arguments = listOf(
@@ -33,14 +33,14 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
 
             val routeEmail = backStackEntry.arguments?.getString("email")
             onShowNavbarChanged(false)
-            LoginScreen(navController, routeEmail=routeEmail, onLoginSuccess = { userID : Int, userEmail : String ->
+            LoginScreen(navController, routeEmail=routeEmail, onLoginSuccess = { userID : Int, userEmail : String, userName : String ->
 
                 // Clear previous session
                 sessionManager.clearSession()
 
 
                 // Save new session
-                sessionManager.saveUserSession(userID, userEmail)
+                sessionManager.saveUserSession(userID, userEmail, userName)
 
                 if (sessionManager.isLoggedIn()) { // Only direct if logged in!!!
                     println("User is logged in!")
