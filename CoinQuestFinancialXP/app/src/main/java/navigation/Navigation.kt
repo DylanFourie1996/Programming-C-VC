@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import com.example.coinquestfinancialxp.navigation.Screen.BudgetEntryList
 import com.example.coinquestfinancialxp.ui.screens.*
 import ui.screens.BudgetEntryList
+import ui.screens.CaptureNewBudgetScreen
 import ui.screens.RegisterScreen
 
 @Composable
@@ -79,12 +80,12 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             })
         }
 
-        composable(Screen. BudgetEntryList.route) {
+        composable(Screen.BudgetEntryList.route) {
             if (checkSessionAndRedirect(sessionManager, navController)) {
                 return@composable
             }
             onShowNavbarChanged(true)
-            navController.navigate(Screen.BudgetEntryList.route)
+            BudgetEntryList(navController)
         }
 
         composable(Screen.CaptureNewBudget.route) {
@@ -92,7 +93,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
                 return@composable
             }
             onShowNavbarChanged(true)
-            navController.navigate(Screen.CaptureNewBudget.route)
+            CaptureNewBudgetScreen(navController)
         }
     }
 }
