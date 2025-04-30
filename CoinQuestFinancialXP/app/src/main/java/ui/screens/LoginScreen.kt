@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import Utils.SessionManager
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
@@ -33,8 +34,9 @@ import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 
 @Composable
-fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: () -> Unit) {
+fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String) -> Unit) {
     BackHandler {  }
+
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -93,13 +95,14 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                     loginRegisterViewModel.login(
                         email,
                         password
-                    ) { success, userExists, passwordMatches, message ->
+                    ) { success, userExists, passwordMatches, userID, message ->
                         println(message)
                         showEmailError = false
                         showPasswordError = false
                         if (success) {
                             println("Logged in!")
-                            onLoginSuccess()
+                            // Get user id
+                            onLoginSuccess(userID, email)
                         } else {
                             // To-Do: Let the user know why the login failed.
 

@@ -1,5 +1,6 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import Utils.SessionManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -8,13 +9,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.coinquestfinancialxp.navigation.Navigation
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.BottomNavBar
+import ui.CustomComposables.StandardButton
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
+    val context = LocalContext.current
     BackHandler {  }
     Scaffold(
     ) { innerPadding ->
@@ -28,11 +33,15 @@ fun ProfileScreen(navController: NavHostController) {
         ) {
             Text(text = "Profile Screen")
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = {
-                navController.navigate(Screen.Profile.route)
-            }) {
-                Text(text = "Go to Profile")
-            }
+            StandardButton(text="Log Out", onClick = {
+                // Logout session
+                val sessionHandler = SessionManager.getInstance(context)
+
+                sessionHandler.clearSession()
+
+                // Force renavigation
+                navController.navigate(Screen.Login.route)
+            })
         }
     }
 }

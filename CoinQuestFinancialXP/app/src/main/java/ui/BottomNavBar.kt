@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -51,8 +52,10 @@ data class BottomNavItem(
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
         BottomNavItem(Screen.Home.route, Screen.Home.title, Icons.Filled.Home),
+        BottomNavItem(Screen.BudgetEntryList.route, Screen.BudgetEntryList.title, Icons.Filled.Menu),
         BottomNavItem(Screen.Profile.route, Screen.Profile.title, Icons.Filled.Person),
         BottomNavItem(Screen.Settings.route, Screen.Settings.title, Icons.Filled.Settings)
+
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

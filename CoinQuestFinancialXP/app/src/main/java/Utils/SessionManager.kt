@@ -3,13 +3,24 @@ package Utils
 import android.content.Context
 import android.content.SharedPreferences
 
-class SessionManager(context: Context) {
+class SessionManager private constructor(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
     companion object {
         private const val USER_ID = "user_id"
         private const val USER_EMAIL = "user_email"
+
+        @Volatile
+        private var instance: SessionManager? = null
+
+        fun getInstance(context: Context): SessionManager {
+            return instance ?: synchronized(this) {
+                instance ?: SessionManager(context.applicationContext).also { instance = it }
+            }
+        }
     }
+
+
 
     fun saveUserSession(id: Int, email: String) {
         prefs.edit().apply {
@@ -27,5 +38,5 @@ class SessionManager(context: Context) {
         prefs.edit().clear().apply()
     }
 
-    fun isLoggedIn(): Boolean = getUserId() != -1
+    fun isLoggedIn(): Boolean = getUserId() != -1 && getUserEmail() != null
 }

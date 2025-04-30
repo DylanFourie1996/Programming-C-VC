@@ -10,7 +10,7 @@ import org.mindrot.jbcrypt.BCrypt
 class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 
-    fun login(email : String, password : String, onResult: (Boolean, Boolean, Boolean, String?) -> Unit) {
+    fun login(email : String, password : String, onResult: (Boolean, Boolean, Boolean, Int, String?) -> Unit) {
         viewModelScope.launch {
             try {
                 val user = userDao.getUserByEmail(email)
@@ -34,11 +34,12 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                     success,
                     userExists,
                     passwordMatches,
+                    user!!.id,
                     message
                 ) // Pass back if password matches as well, to check if the user is logging in or not.
             } catch (e : Exception) {
                 e.printStackTrace()
-                onResult(false, false, false, "error")
+                onResult(false, false, false, -1, "error")
             }
         }
     }
