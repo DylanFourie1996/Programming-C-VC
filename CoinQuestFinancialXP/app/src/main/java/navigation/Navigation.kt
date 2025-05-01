@@ -10,9 +10,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.coinquestfinancialxp.navigation.Screen.BudgetEntryList
+import com.example.coinquestfinancialxp.navigation.Screen.CategoryCreation
 import com.example.coinquestfinancialxp.ui.screens.*
 import ui.screens.BudgetEntryList
 import ui.screens.CaptureNewBudgetScreen
+import ui.screens.CategoryCreation
 import ui.screens.RegisterScreen
 
 @Composable
@@ -21,7 +23,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
     // Get Session Manager
     val sessionManager = remember { SessionManager.getInstance(context=context) }
 
-    val startDest = Screen.Profile.route//if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
+    val startDest = if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
     NavHost(navController = navController, startDestination = startDest) { // CHANGE BACK TO LOGIN.ROUTE
         composable(route=Screen.Login.route+"?email={email}",
             arguments = listOf(
@@ -94,6 +96,14 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             }
             onShowNavbarChanged(true)
             CaptureNewBudgetScreen(navController)
+        }
+
+        composable(Screen.CategoryCreation.route) {
+            if (checkSessionAndRedirect(sessionManager, navController)) {
+                return@composable
+            }
+            onShowNavbarChanged(true)
+            CategoryCreation(navController)
         }
     }
 }

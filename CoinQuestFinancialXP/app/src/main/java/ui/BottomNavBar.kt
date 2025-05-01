@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -53,6 +56,7 @@ fun BottomNavBar(navController: NavController) {
     val items = listOf(
         BottomNavItem(Screen.Home.route, Screen.Home.title, Icons.Filled.Home),
         BottomNavItem(Screen.BudgetEntryList.route, Screen.BudgetEntryList.title, Icons.Filled.Menu),
+        BottomNavItem(Screen.CategoryCreation.route, Screen.CategoryCreation.title, Icons.Filled.Star),
         BottomNavItem(Screen.Profile.route, Screen.Profile.title, Icons.Filled.Person),
         BottomNavItem(Screen.Settings.route, Screen.Settings.title, Icons.Filled.Settings)
 
@@ -65,7 +69,7 @@ fun BottomNavBar(navController: NavController) {
     val unselectedPadding = 0.dp
     val selectedPadding = 16.dp
 
-    Surface(modifier=Modifier.fillMaxWidth().padding(horizontal=24.dp, vertical=32.dp),
+    Surface(modifier=Modifier.fillMaxWidth().padding(start=24.dp, end=24.dp, top=0.dp, bottom=24.dp),
         shape=RoundedCornerShape(100.dp),
         color=Color.White,
         shadowElevation=1.dp) {
@@ -75,31 +79,44 @@ fun BottomNavBar(navController: NavController) {
             items.forEach { item ->
                 val selected = item.route == currentRoute
 
-
-                Box(
-                    modifier = Modifier.clip(RoundedCornerShape(100.dp))
-                        .clickable {
-                        if (currentRoute != item.route) {
-                            navController.navigate(item.route) {
-                                launchSingleTop = true
-                                restoreState = true
+                Column(horizontalAlignment=Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier.clip(RoundedCornerShape(100.dp))
+                            .clickable {
+                                if (currentRoute != item.route) {
+                                    navController.navigate(item.route) {
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
                             }
+                            .background(
+                                if (selected) Color(
+                                    1.0f,
+                                    1.0f,
+                                    1.0f,
+                                    1f
+                                ) else Color.Transparent
+                            )
+                            .padding(end = unselectedPadding)//if (selected) selectedPadding else unselectedPadding),
+
+                        ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(32.dp)
+                                    .padding(start = 0.dp)//if (selected) 8.dp else 0.dp)
+                            )
+
                         }
                     }
-                        .background(if (selected) Color(1.0f, 1.0f, 1.0f,1f) else Color.Transparent)
-                        .padding(end=if (selected) selectedPadding else unselectedPadding),
-
-                    ) {
-                    Row(verticalAlignment=Alignment.CenterVertically, horizontalArrangement=Arrangement.Start) {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(32.dp).padding(start=if (selected) 8.dp else 0.dp)
-                        )
-                        if (selected) {
-                            Spacer(modifier=Modifier.width(3.dp))
-                            Text(text=item.title)
-                        }
+                    if (selected) {
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(text = item.title, fontSize=12.sp)
                     }
                 }
                 /*NavigationBarItem(
