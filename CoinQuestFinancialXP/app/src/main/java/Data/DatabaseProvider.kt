@@ -1,5 +1,6 @@
 package com.example.coinquest.data
 
+import DOA.CategorySpendDao
 import android.content.Context
 import androidx.room.Room
 
@@ -18,5 +19,9 @@ object DatabaseProvider {
             INSTANCE = instance
             instance
         }
+    }
+
+    fun getCategorySpendDao(context: Context): CategorySpendDao {
+        return getDatabase(context).CategorySpendDao()
     }
 }

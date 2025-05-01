@@ -57,10 +57,7 @@ data class CustomColors(
     val ActionButton4Text : Color,
     val TextBoxBorder : Color,
     val TextBoxBG : Color,
-    val TextBoxText : Color,
-    val ProgressBarColor : Color,
-    val DividerColor1 : Color,
-    val DividerColor2 : Color
+    val TextBoxText : Color
 )
 
 val LocalCustomColors = staticCompositionLocalOf {
@@ -82,10 +79,7 @@ val LocalCustomColors = staticCompositionLocalOf {
         ActionButton4Text=White,
         TextBoxText=DarkGrey,
         TextBoxBorder=MidGrey,
-        TextBoxBG=LightGrey,
-        ProgressBarColor=TurkishBlue,
-        DividerColor1=Divider1,
-        DividerColor2=Divider2
+        TextBoxBG=LightGrey
     )
 }
 
@@ -127,10 +121,7 @@ fun CoinQuestFinancialXPTheme(
             ActionButton4Text=White,
             TextBoxText=DarkGrey,
             TextBoxBorder=MidGrey,
-            TextBoxBG=LightGrey,
-            ProgressBarColor=TurkishBlue,
-            DividerColor1=Divider1,
-            DividerColor2=Divider2
+            TextBoxBG=LightGrey
         )
     } else {
         CustomColors(
@@ -151,10 +142,7 @@ fun CoinQuestFinancialXPTheme(
             ActionButton4Text=White,
             TextBoxText=DarkGrey,
             TextBoxBorder=MidGrey,
-            TextBoxBG=LightGrey,
-            ProgressBarColor=TurkishBlue,
-            DividerColor1=Divider1,
-            DividerColor2=Divider2
+            TextBoxBG=LightGrey
         )
     }
 

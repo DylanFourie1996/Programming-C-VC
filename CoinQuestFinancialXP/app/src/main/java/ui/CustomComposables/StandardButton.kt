@@ -101,7 +101,7 @@ fun StandardButton(
         label = "PressOffset"
     )
     Box(
-        modifier=modifier.fillMaxWidth().height(height),
+        modifier=Modifier.fillMaxWidth().height(height),
         contentAlignment=Alignment.TopCenter
     ) {
         Box(modifier=Modifier.fillMaxWidth()
