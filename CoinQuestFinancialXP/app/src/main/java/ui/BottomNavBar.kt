@@ -52,7 +52,7 @@ data class BottomNavItem(
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
         BottomNavItem(Screen.Home.route, Screen.Home.title, Icons.Filled.Home),
-        BottomNavItem(Screen.CaptureCategorySpendScreen.route, Screen.CaptureCategorySpendScreen.title, Icons.Filled.Menu),
+        BottomNavItem(Screen.BudgetEntryList.route, Screen.BudgetEntryList.title, Icons.Filled.Menu),
         BottomNavItem(Screen.Profile.route, Screen.Profile.title, Icons.Filled.Person),
         BottomNavItem(Screen.Settings.route, Screen.Settings.title, Icons.Filled.Settings)
 

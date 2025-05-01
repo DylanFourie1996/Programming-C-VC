@@ -4,15 +4,14 @@ import Utils.SessionManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.coinquestfinancialxp.ui.screens.HomeScreen
-import com.example.coinquestfinancialxp.ui.screens.LoginScreen
-import com.example.coinquestfinancialxp.ui.screens.ProfileScreen
-import com.example.coinquestfinancialxp.ui.screens.SettingsScreen
-import ui.screens.CaptureCategorySpendScreen
+import com.example.coinquestfinancialxp.navigation.Screen.BudgetEntryList
+import com.example.coinquestfinancialxp.ui.screens.*
+import ui.screens.BudgetEntryList
 import ui.screens.CaptureNewBudgetScreen
 import ui.screens.RegisterScreen
 
@@ -22,7 +21,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
     // Get Session Manager
     val sessionManager = remember { SessionManager.getInstance(context=context) }
 
-    val startDest = if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
+    val startDest = Screen.Profile.route//if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
     NavHost(navController = navController, startDestination = startDest) { // CHANGE BACK TO LOGIN.ROUTE
         composable(route=Screen.Login.route+"?email={email}",
             arguments = listOf(
@@ -34,14 +33,14 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
 
             val routeEmail = backStackEntry.arguments?.getString("email")
             onShowNavbarChanged(false)
-            LoginScreen(navController, routeEmail=routeEmail, onLoginSuccess = { userID : Int, userEmail : String ->
+            LoginScreen(navController, routeEmail=routeEmail, onLoginSuccess = { userID : Int, userEmail : String, userName : String ->
 
                 // Clear previous session
                 sessionManager.clearSession()
 
 
                 // Save new session
-                sessionManager.saveUserSession(userID, userEmail)
+                sessionManager.saveUserSession(userID, userEmail, userName)
 
                 if (sessionManager.isLoggedIn()) { // Only direct if logged in!!!
                     println("User is logged in!")
@@ -81,12 +80,12 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             })
         }
 
-        composable(Screen.CaptureCategorySpendScreen.route) {
+        composable(Screen.BudgetEntryList.route) {
             if (checkSessionAndRedirect(sessionManager, navController)) {
                 return@composable
             }
             onShowNavbarChanged(true)
-            CaptureCategorySpendScreen(navController)
+            BudgetEntryList(navController)
         }
 
         composable(Screen.CaptureNewBudget.route) {

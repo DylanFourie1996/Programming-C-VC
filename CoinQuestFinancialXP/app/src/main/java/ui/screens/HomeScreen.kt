@@ -59,10 +59,10 @@ fun HomeScreen(navController: NavHostController) {
                 ),
                 actions = {
                     IconButton(onClick = {
-                        navController.navigate(Screen.CaptureNewBudget.route)
+                        navController.navigate(Screen.CaptureNewBudget.route) // Rout that the uer  can click on
                     }) {
                         Icon(
-                            imageVector = Icons.Filled.Face,
+                            imageVector = Icons.Filled.Face,//Achievement Page, We can Make it profile or Achievement or Bell
                             contentDescription = "Achievements",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
@@ -212,7 +212,7 @@ fun HomeScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.CaptureCategorySpendScreen.route) }, //Should Move it to Expense List
+                onClick = { navController.navigate(Screen.BudgetEntryList.route) }, //Should Move it to Expense List
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Go To Expense List")

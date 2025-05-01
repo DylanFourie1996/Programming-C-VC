@@ -34,7 +34,7 @@ import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 
 @Composable
-fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String) -> Unit) {
+fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String, userName : String) -> Unit) {
     BackHandler {  }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -95,22 +95,23 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                     loginRegisterViewModel.login(
                         email,
                         password
-                    ) { success, userExists, passwordMatches, userID, message ->
+                    ) { success, userExists, passwordMatches, userID, userName, message ->
                         println(message)
                         showEmailError = false
                         showPasswordError = false
                         if (success) {
                             println("Logged in!")
-                            onLoginSuccess(userID, email)
+                            // Get user id
+                            onLoginSuccess(userID, email, userName)
                         } else {
-
+                            // To-Do: Let the user know why the login failed.
 
                             if (userExists) {
                                 if (passwordMatches) {
                                     println("Uknown error when logging in.")
                                 } else {
                                     println("Password does not match!")
-
+                                    // Show password not matching
                                     showPasswordError = true
 
                                 }
@@ -153,3 +154,4 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
         }
     }
 }
+

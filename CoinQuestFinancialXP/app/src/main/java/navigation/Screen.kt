@@ -8,6 +8,6 @@ object Screen {
     val Profile = ScreenItem("profile", "Profile")
     val Settings = ScreenItem("settings", "Settings")
     val Register = ScreenItem("register", "Register")
-    val CaptureCategorySpendScreen = ScreenItem("CaptureCategorySpendScreen", "CaptureCategorySpendScreen")
+    val BudgetEntryList = ScreenItem("BudgetEntryList", "Budget Entry List")
     val CaptureNewBudget = ScreenItem("CaptureNewBudget", "Capture New Budget")
 }

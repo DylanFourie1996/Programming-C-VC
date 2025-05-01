@@ -10,7 +10,7 @@ import org.mindrot.jbcrypt.BCrypt
 class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 
-    fun login(email : String, password : String, onResult: (Boolean, Boolean, Boolean, Int, String?) -> Unit) {
+    fun login(email : String, password : String, onResult: (Boolean, Boolean, Boolean, Int, String, String?) -> Unit) {
         viewModelScope.launch {
             try {
                 val user = userDao.getUserByEmail(email)
@@ -35,11 +35,12 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                     userExists,
                     passwordMatches,
                     user!!.id,
+                    user.name,
                     message
                 ) // Pass back if password matches as well, to check if the user is logging in or not.
             } catch (e : Exception) {
                 e.printStackTrace()
-                onResult(false, false, false, -1, "error")
+                onResult(false, false, false, -1, "null", "error")
             }
         }
     }
@@ -77,6 +78,30 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
             } catch (e : Exception) {
                 e.printStackTrace()
                 onResult(false, false, false, false, "Error")
+            }
+        }
+    }
+
+    fun delete(userID : Int, email : String, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val user : UserModel? = userDao.getUserById(userID)
+
+                val userExists = user != null
+
+
+                if (userExists) {
+                    val userCredentialsMatch = userID == user.id && email == user.email
+
+                    if (userCredentialsMatch) {
+                        userDao.deleteUserById(userID)
+                        onResult(true)
+                    }
+                }
+                onResult(false)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(false)
             }
         }
     }

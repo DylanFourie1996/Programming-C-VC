@@ -1,11 +1,11 @@
 package Model
 
+import android.media.audiofx.AudioEffect.Descriptor
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-    tableName = "category_spend",
+@Entity(tableName = "category_spend",
     foreignKeys = [
         ForeignKey(
             entity = BudgetModel::class,
@@ -19,6 +19,8 @@ data class CategorySpendModel(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val budgetId: Int,
     val category: Int,
-    val spend: Float,
-    val photoUri: String
+    val descriptor: String,
+    val photoUri: String,
+    val amountSpent: Float,
+    val note: String
 )

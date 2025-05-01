@@ -7,6 +7,7 @@ class SessionManager private constructor(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("user_session", Context.MODE_PRIVATE)
 
     companion object {
+        private const val USER_NAME = "user_name"
         private const val USER_ID = "user_id"
         private const val USER_EMAIL = "user_email"
 
@@ -22,10 +23,11 @@ class SessionManager private constructor(context: Context) {
 
 
 
-    fun saveUserSession(id: Int, email: String) {
+    fun saveUserSession(id: Int, email: String, name :String) {
         prefs.edit().apply {
             putInt(USER_ID, id)
             putString(USER_EMAIL, email)
+            putString(USER_NAME, name)
             apply()
         }
     }
@@ -33,6 +35,8 @@ class SessionManager private constructor(context: Context) {
     fun getUserId(): Int = prefs.getInt(USER_ID, -1)
 
     fun getUserEmail(): String? = prefs.getString(USER_EMAIL, null)
+
+    fun getUserName(): String? = prefs.getString(USER_NAME, null)
 
     fun clearSession() {
         prefs.edit().clear().apply()
