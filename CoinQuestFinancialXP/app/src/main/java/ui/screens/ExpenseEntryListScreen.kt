@@ -185,10 +185,13 @@ fun ExpenseEntryRow(
                     Spacer(modifier=Modifier.height(5.dp))
                     Divider()
                     Spacer(modifier=Modifier.height(8.dp))
+                    
                     categoryViewModel.getCategoryById(entry.category)
                     { actualCategory : CategoryModel? ->
-
-                        actualTitle = actualCategory!!.title
+                        if (actualCategory != null)
+                            actualTitle = actualCategory!!.title
+                        else
+                            actualTitle = "NULL"
                     }
 
                     Text(
@@ -241,6 +244,7 @@ fun UpdateCategorySpendScreen(
     entryId: Int,
     onUpdateComplete: () -> Unit
 ) {
+    val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
     val userId = sessionManager.getUserId()
@@ -275,6 +279,7 @@ fun UpdateCategorySpendScreen(
     }
 
     Scaffold(
+        containerColor=customColors.page,
         topBar = {
         }
     ) { padding ->

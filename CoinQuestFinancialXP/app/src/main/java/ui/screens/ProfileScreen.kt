@@ -59,6 +59,7 @@ fun ProfileScreen(navController: NavHostController) {
 
     BackHandler {  }
     Scaffold(
+        containerColor=customColors.page,
     ) { innerPadding ->
         Column(
             modifier = Modifier

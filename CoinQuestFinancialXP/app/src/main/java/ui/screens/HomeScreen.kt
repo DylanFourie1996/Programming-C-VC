@@ -9,7 +9,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +39,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.coinquestfinancialxp.navigation.Screen
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
 
 @Preview(showBackground = true)
@@ -50,8 +53,10 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val expandedFab = remember { mutableStateOf(false) }
+    val customColors = LocalCustomColors.current
     BackHandler {  }
     Scaffold(
+        containerColor=customColors.page,
         topBar = {
         },
         floatingActionButton = {
@@ -245,16 +250,18 @@ fun HomeScreen(navController: NavHostController) {
 }
 @Composable
 fun FinancialSummaryCard() {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        color=Color.White,
+        shape=RoundedCornerShape(15.dp),
+        shadowElevation = 3.dp
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
         ) {
             Text(
                 text = "Total Balance",
@@ -317,13 +324,13 @@ fun RecentTransactionsList() {
 fun TransactionItem(title: String, amount: String) {
     val isPositive = amount.startsWith("+")
 
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+        shape=RoundedCornerShape(100.dp),
+        color=Color.White,
+        shadowElevation=3.dp
     ) {
         Row(
             modifier = Modifier
@@ -351,7 +358,7 @@ fun BudgetProgressList() {
         Triple("Transportation", 45f, 100f),
         Triple("Entertainment", 80f, 75f)
     )
-    Column {
+    Column(horizontalAlignment=Alignment.CenterHorizontally, verticalArrangement=Arrangement.Center, modifier=Modifier.padding(vertical=16.dp)) {
         categories.forEach { (category, spent, total) ->
             BudgetProgressItem(
                 category = category,
@@ -364,6 +371,7 @@ fun BudgetProgressList() {
                     // Navigate to expense list for this category
                 }
             )
+            Spacer(modifier=Modifier.height(16.dp))
         }
     }
 }
@@ -381,15 +389,13 @@ fun BudgetProgressItem(
 
     // State to track if options are expanded
     val expanded = remember { mutableStateOf(false) }
-
-    Card(
+    Surface(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .animateContentSize(), // Add animation for smooth transition
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
+            .fillMaxWidth(),
+            //.animateContentSize(), // Add animation for smooth transition
+        color = Color.White,
+        shadowElevation = 3.dp,
+        shape = RoundedCornerShape(15.dp),
     ) {
         Column(
             modifier = Modifier

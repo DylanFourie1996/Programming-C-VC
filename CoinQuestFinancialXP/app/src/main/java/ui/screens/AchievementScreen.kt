@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
 data class Achievement(
     val id: Int,
@@ -52,6 +53,8 @@ fun AchievementScreen(navController: NavHostController) {
     BackHandler {
         navController.popBackStack()
     }
+
+    val customColors = LocalCustomColors.current
 
     val achievements = listOf(
         Achievement(
@@ -105,6 +108,7 @@ fun AchievementScreen(navController: NavHostController) {
     )
 
     Scaffold(
+        containerColor=customColors.page,
         topBar = {
             TopAppBar(
                 windowInsets=WindowInsets(0.dp),
@@ -136,7 +140,7 @@ fun AchievementScreen(navController: NavHostController) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .background(
-                    color = MaterialTheme.colorScheme.background
+                    color = customColors.page
                 )
         ) {
             Column(
