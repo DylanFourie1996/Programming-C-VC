@@ -26,6 +26,7 @@ import com.example.coinquestfinancialxp.navigation.Navigation
 import com.example.coinquestfinancialxp.ui.BottomNavBar
 import com.example.coinquestfinancialxp.ui.TopNavBar
 import com.example.coinquestfinancialxp.ui.theme.CoinQuestFinancialXPTheme
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,16 +53,19 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(isDarkTheme : Boolean, showNavBar : Boolean, onShowNavBarChanged: (Boolean) -> Unit, onToggleTheme: () -> Unit) {
     val navController = rememberNavController()
-
+    val customColors = LocalCustomColors.current
     Scaffold(
+        modifier= Modifier.background(customColors.page),
         topBar = {
             if (showNavBar) TopNavBar(navController)
         },
         bottomBar = {
-            if (showNavBar) BottomNavBar(navController)
+            Box(modifier=Modifier.background(customColors.page)) {
+                if (showNavBar) BottomNavBar(navController)
+            }
         },
         content = { paddingValues ->
-            Column(modifier = Modifier.padding(paddingValues)) {
+            Column(modifier = Modifier.padding(paddingValues).background(customColors.page)) {
                 Navigation(navController = navController, isDarkTheme, onShowNavBarChanged, onToggleTheme)
             }
         }

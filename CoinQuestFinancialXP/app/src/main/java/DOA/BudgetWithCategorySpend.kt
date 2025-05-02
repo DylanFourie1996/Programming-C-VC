@@ -1,4 +1,0 @@
-package DOA
-
-class BudgetWithCategorySpend {
-}

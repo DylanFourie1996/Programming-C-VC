@@ -2,6 +2,7 @@ package com.example.coinquestfinancialxp.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import  androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
@@ -20,6 +21,7 @@ import androidx.navigation.NavHostController
 import com.example.coinquestfinancialxp.R
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.BottomNavBar
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 
@@ -27,12 +29,13 @@ import ui.CustomComposables.StandardButtonTheme
 @Composable
 fun SettingsScreen(navController: NavHostController, isDarkTheme : Boolean, onToggleTheme: () -> Unit) {
     BackHandler {  }
+    val customColors = LocalCustomColors.current
     val theme = if (!isDarkTheme) StandardButtonTheme.ORANGEGRAND else StandardButtonTheme.DARKGRAND
     Scaffold(
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().background(customColors.page)
                 .padding(innerPadding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

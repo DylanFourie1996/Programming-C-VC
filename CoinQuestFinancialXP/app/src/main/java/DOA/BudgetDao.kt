@@ -3,6 +3,7 @@ package DOA
 import Model.BudgetModel
 import Model.CategorySpendModel
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BudgetDao {
@@ -36,7 +37,7 @@ interface BudgetDao {
     @Query("DELETE FROM categoryspend WHERE id = :id")
     suspend fun deleteCategorySpendById(id: Int)
 
-    @Query("SELECT * FROM budget WHERE userId = :userId ORDER BY startDate DESC LIMIT 1")
-    suspend fun getLatestBudgetForUser(userId: Int): BudgetModel?
+    @Query("SELECT * FROM budget WHERE userId=:userId")
+    fun getAllBudgets(userId : Int) : Flow<List<BudgetModel>>
 
 }

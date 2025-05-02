@@ -79,5 +79,5 @@ class CategorySpendViewModel(
                 e.printStackTrace()
             }
         }
-            }
-        }
+    }
+}

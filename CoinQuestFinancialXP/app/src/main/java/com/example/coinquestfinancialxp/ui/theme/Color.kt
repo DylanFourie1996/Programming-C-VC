@@ -58,3 +58,7 @@ val TurkishBlue=Color(0xFF3FAFFF)
 // Divider
 val Divider1=Color(0xFFBDBDBD)
 val Divider2=Color(0xFFE0E0E0)
+
+// Page
+val PageLight=Color(0xFFFFFFFF)
+val PageDark=Color.Red//(0x0F262626)
