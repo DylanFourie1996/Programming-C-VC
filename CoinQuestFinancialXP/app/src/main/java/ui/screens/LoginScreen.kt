@@ -1,11 +1,9 @@
 package com.example.coinquestfinancialxp.ui.screens
 
-import Utils.SessionManager
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -27,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquestfinancialxp.R
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import ui.CustomComposables.StandardButton
@@ -34,12 +33,11 @@ import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 
 @Composable
-fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String) -> Unit) {
+fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String, userName : String) -> Unit) {
     BackHandler {  }
-
+//    val achievementDoa: AchievementDoa
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-
     val customColors = LocalCustomColors.current
 
     val context = LocalContext.current
@@ -95,22 +93,23 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
                     loginRegisterViewModel.login(
                         email,
                         password
-                    ) { success, userExists, passwordMatches, userID, message ->
+                    ) { success, userExists, passwordMatches, userID, userName, message ->
                         println(message)
                         showEmailError = false
                         showPasswordError = false
                         if (success) {
                             println("Logged in!")
-                            onLoginSuccess(userID, email)
+                            // Get user id
+                            onLoginSuccess(userID, email, userName)
                         } else {
-
+                            // To-Do: Let the user know why the login failed.
 
                             if (userExists) {
                                 if (passwordMatches) {
                                     println("Uknown error when logging in.")
                                 } else {
                                     println("Password does not match!")
-
+                                    // Show password not matching
                                     showPasswordError = true
 
                                 }
@@ -153,3 +152,4 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
         }
     }
 }
+

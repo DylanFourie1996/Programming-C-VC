@@ -1,6 +1,5 @@
 package com.example.coinquest.data
 
-import DOA.CategorySpendDao
 import android.content.Context
 import androidx.room.Room
 
@@ -15,13 +14,11 @@ object DatabaseProvider {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "coinquest_database"
-            ).fallbackToDestructiveMigration().build()
+            )
+                .fallbackToDestructiveMigration()
+                .build()
             INSTANCE = instance
             instance
         }
-    }
-
-    fun getCategorySpendDao(context: Context): CategorySpendDao {
-        return getDatabase(context).CategorySpendDao()
     }
 }

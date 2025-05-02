@@ -51,3 +51,10 @@ val GradientDark = Brush.linearGradient(
 val DarkGrey = Color(0xFF959595)
 val MidGrey = Color(0xFFD3D3D3)
 val LightGrey = Color(0xFFF1F1F1)
+
+// Progress Bar
+val TurkishBlue=Color(0xFF3FAFFF)
+
+// Divider
+val Divider1=Color(0xFFBDBDBD)
+val Divider2=Color(0xFFE0E0E0)

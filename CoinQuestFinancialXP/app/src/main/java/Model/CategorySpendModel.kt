@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "category_spend",
+    tableName = "categoryspend",
     foreignKeys = [
         ForeignKey(
             entity = BudgetModel::class,
@@ -18,7 +18,8 @@ import androidx.room.PrimaryKey
 data class CategorySpendModel(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val budgetId: Int,
+    val ItemName:String,
     val category: Int,
     val spend: Float,
-    val photoUri: String
+    val photoUri: String,
 )

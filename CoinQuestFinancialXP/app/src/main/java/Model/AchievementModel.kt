@@ -1,12 +1,11 @@
 package Model
-
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.coinquest.data.UserModel
 
 @Entity(
-    tableName = "budget",
+    tableName = "user_achievements",
     foreignKeys = [
         ForeignKey(
             entity = UserModel::class,
@@ -16,14 +15,8 @@ import com.example.coinquest.data.UserModel
         )
     ]
 )
-data class BudgetModel(
+data class AchievementModel(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val userId: Int,
-    val limit: Float,
-    val save: Float,
-    val durationType: Int,
-    val startDate: Long,
-    val totalSpent: Float = 0f,
-    val remainingBalance: Float,
-    val currency: String = "ZAR"
+    val achievementOneId: Int,
 )

@@ -1,17 +1,28 @@
 package com.example.coinquest.data
 
+
 import DOA.BudgetDao
 import DOA.CategorySpendDao
-import Model.BudgetModel
-import Model.CategorySpendModel
-import androidx.room.Dao
+import DOA.CategorySpendOnlyDao
+import Model.*
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [BudgetModel::class, CategorySpendModel::class, UserModel::class], version = 1)
+@Database(
+    entities = [
+        UserModel::class,
+        CategoryModel::class,
+        BudgetModel::class,
+        CategorySpendModel::class,
+        AchievementModel::class
+    ],
+    version = 1,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun UserDao(): UserDao
-    abstract fun BudgetDao(): BudgetDao
-    abstract fun CategorySpendDao(): CategorySpendDao
-
+    abstract fun userDao(): UserDao
+    abstract fun budgetDao(): BudgetDao
+    abstract fun categoryDao(): CategoryDao
+    abstract fun categorySpendDao(): CategorySpendDao
+    abstract fun categorySpendOnlyDao(): CategorySpendOnlyDao
 }
