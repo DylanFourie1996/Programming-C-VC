@@ -1,5 +1,8 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import Utils.SessionManager
+import ViewModels.CaptureNewBudgetViewModel
+import ViewModels.Factories.CaptureNewBudgetViewModelFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -26,18 +29,22 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
@@ -219,7 +226,7 @@ fun HomeScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            RecentTransactionsList()
+//            RecentTransactionsList()
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -233,7 +240,7 @@ fun HomeScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            BudgetProgressList()
+//            BudgetProgressList()
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -248,41 +255,279 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
 }
+
 @Composable
 fun FinancialSummaryCard() {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        color=Color.White,
-        shape=RoundedCornerShape(15.dp),
-        shadowElevation = 3.dp
-    ) {
-        Column(
+    // Getting the context and session handler
+    val context = LocalContext.current
+    val sessionHandler = remember { SessionManager.getInstance(context) }
+    val currentUserId = sessionHandler.getUserId()
+
+    // Initialize ViewModel and load budget info
+    val viewModel: CaptureNewBudgetViewModel = viewModel(
+        factory = CaptureNewBudgetViewModelFactory(
+            DatabaseProvider.getDatabase(context).budgetDao()
+        )
+    )
+
+    // Load current user's budget
+    viewModel.loadCurrentBudget(currentUserId)
+
+    // Observe the current budget
+    val currentBudget = viewModel.currentBudget.collectAsState().value
+
+    currentBudget?.let { budget ->
+        // Calculate the totalBalance, income, and expenses
+        val totalBalance = budget.remainingBalance
+        val income = budget.limit
+        val expenses = budget.totalSpent
+
+        Surface(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            color = Color.White,
+            shape = RoundedCornerShape(15.dp),
+            shadowElevation = 3.dp
         ) {
-            Text(
-                text = "Total Balance",
-                fontSize = 16.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = "R2,450.75",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
             ) {
-                FinancialMetric(label = "Income", value = "R3,200.00", positive = true)
-                FinancialMetric(label = "Expenses", value = "R749.25", positive = false)
+                Text(text = "Total Balance", fontSize = 16.sp, color = Color.Gray)
+
+                Text(
+                    text = "R${"%.2f".format(totalBalance)}",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    FinancialMetric(label = "Income", value = "R${"%.2f".format(income)}", positive = true)
+                    FinancialMetric(label = "Expenses", value = "R${"%.2f".format(expenses)}", positive = false)
+                }
+            }
+        }
+    } ?: run {
+        // If no budget data, show a loading or error state
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            color = Color.White,
+            shape = RoundedCornerShape(15.dp),
+            shadowElevation = 3.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "No budget information available",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(vertical = 16.dp)
+                )
+
+                Button(onClick = {
+                    // Navigate to create budget screen
+                }) {
+                    Icon(Icons.Default.Add, contentDescription = "Create")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Create Budget")
+                }
+            }
+        }
+    }
+
+
+//    @Composable
+//    fun RecentTransactionsList() {
+//        val transactions = listOf(
+//            "Groceries" to "-R45.32",
+//            "Salary" to "+R1,500.00",
+//            "Utilities" to "-R124.56"
+//        )
+//
+//        Column {
+//            transactions.forEach { (title, amount) ->
+//                TransactionItem(title = title, amount = amount)
+//            }
+//        }
+//    }
+
+    @Composable
+    fun TransactionItem(title: String, amount: String) {
+        val isPositive = amount.startsWith("+")
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            shape = RoundedCornerShape(100.dp),
+            color = Color.White,
+            shadowElevation = 3.dp
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = title)
+                Text(
+                    text = amount,
+                    color = if (isPositive) Color(0xFF4CAF50) else Color(0xFFE57373),
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+
+
+//    @Composable
+//    fun BudgetProgressList() {
+//        // Placeholder for budget progress
+//        // In a real app, this would be connected to your BudgetModel
+//        val categories = listOf(
+//            Triple("Food", 65f, 150f),
+//            Triple("Transportation", 45f, 100f),
+//            Triple("Entertainment", 80f, 75f)
+//        )
+//        Column(
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center,
+//            modifier = Modifier.padding(vertical = 16.dp)
+//        ) {
+//            categories.forEach { (category, spent, total) ->
+//                BudgetProgressItem(
+//                    category = category,
+//                    amountSpent = spent,
+//                    totalBudget = total,
+//                    onCreateBudgetClick = {
+//                        // Navigate to create budget for this category
+//                    },
+//                    onExpenseListClick = {
+//                        // Navigate to expense list for this category
+//                    }
+//                )
+//                Spacer(modifier = Modifier.height(16.dp))
+//            }
+//        }
+//    }
+
+    @Composable
+    fun BudgetProgressItem(
+        category: String,
+        amountSpent: Float,
+        totalBudget: Float,
+        onCreateBudgetClick: () -> Unit = {},
+        onExpenseListClick: () -> Unit = {}
+    ) {
+        val progress = (amountSpent / totalBudget).coerceIn(0f, 1f)
+        val isOverBudget = amountSpent > totalBudget
+
+        // State to track if options are expanded
+        val expanded = remember { mutableStateOf(false) }
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(),
+            //.animateContentSize(), // Add animation for smooth transition
+            color = Color.White,
+            shadowElevation = 3.dp,
+            shape = RoundedCornerShape(15.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = category)
+                    Text(
+                        text = "R${amountSpent} / R${totalBudget}",
+                        color = if (isOverBudget) Color(0xFFE57373) else Color.Gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = if (isOverBudget) Color(0xFFE57373) else MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                AnimatedVisibility(
+                    visible = expanded.value,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                onCreateBudgetClick()
+                                expanded.value = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "Create",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Create Budget")
+                        }
+
+                        Button(
+                            onClick = {
+                                onExpenseListClick()
+                                expanded.value = false
+                            },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.List,
+                                contentDescription = "List",
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Expense List")
+                        }
+                    }
+                }
             }
         }
     }
@@ -302,181 +547,5 @@ fun FinancialMetric(label: String, value: String, positive: Boolean) {
             color = if (positive) Color(0xFF4CAF50) else Color(0xFFE57373),
             fontWeight = FontWeight.Medium
         )
-    }
-}
-
-@Composable
-fun RecentTransactionsList() {
-    val transactions = listOf(
-        "Groceries" to "-R45.32",
-        "Salary" to "+R1,500.00",
-        "Utilities" to "-R124.56"
-    )
-
-    Column {
-        transactions.forEach { (title, amount) ->
-            TransactionItem(title = title, amount = amount)
-        }
-    }
-}
-
-@Composable
-fun TransactionItem(title: String, amount: String) {
-    val isPositive = amount.startsWith("+")
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape=RoundedCornerShape(100.dp),
-        color=Color.White,
-        shadowElevation=3.dp
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = title)
-            Text(
-                text = amount,
-                color = if (isPositive) Color(0xFF4CAF50) else Color(0xFFE57373),
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun BudgetProgressList() {
-    // Placeholder for budget progress
-    // In a real app, this would be connected to your BudgetModel
-    val categories = listOf(
-        Triple("Food", 65f, 150f),
-        Triple("Transportation", 45f, 100f),
-        Triple("Entertainment", 80f, 75f)
-    )
-    Column(horizontalAlignment=Alignment.CenterHorizontally, verticalArrangement=Arrangement.Center, modifier=Modifier.padding(vertical=16.dp)) {
-        categories.forEach { (category, spent, total) ->
-            BudgetProgressItem(
-                category = category,
-                amountSpent = spent,
-                totalBudget = total,
-                onCreateBudgetClick = {
-                    // Navigate to create budget for this category
-                },
-                onExpenseListClick = {
-                    // Navigate to expense list for this category
-                }
-            )
-            Spacer(modifier=Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun BudgetProgressItem(
-    category: String,
-    amountSpent: Float,
-    totalBudget: Float,
-    onCreateBudgetClick: () -> Unit = {},
-    onExpenseListClick: () -> Unit = {}
-) {
-    val progress = (amountSpent / totalBudget).coerceIn(0f, 1f)
-    val isOverBudget = amountSpent > totalBudget
-
-    // State to track if options are expanded
-    val expanded = remember { mutableStateOf(false) }
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth(),
-            //.animateContentSize(), // Add animation for smooth transition
-        color = Color.White,
-        shadowElevation = 3.dp,
-        shape = RoundedCornerShape(15.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = category)
-                Text(
-                    text = "R${amountSpent} / R${totalBudget}",
-                    color = if (isOverBudget) Color(0xFFE57373) else Color.Gray
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LinearProgressIndicator(
-                progress = progress,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp),
-                color = if (isOverBudget) Color(0xFFE57373) else MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AnimatedVisibility(
-                visible = expanded.value,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            onCreateBudgetClick()
-                            expanded.value = false
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "Create",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Create Budget")
-                    }
-
-                    Button(
-                        onClick = {
-                            onExpenseListClick()
-                            expanded.value = false
-                        },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.List,
-                            contentDescription = "List",
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Expense List")
-                    }
-                }
-            }
-        }
     }
 }

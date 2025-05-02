@@ -4,6 +4,8 @@ import DOA.BudgetDao
 import Model.BudgetModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() {
@@ -79,7 +81,22 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         return (elapsed.toFloat() / totalMillis).coerceIn(0f, 1f)
     }
 
-    fun resetIfNewPeriod(budgetId: Int) {
+
+    private val _currentBudget = MutableStateFlow<BudgetModel?>(null)
+    val currentBudget: StateFlow<BudgetModel?> = _currentBudget
+
+
+    fun loadCurrentBudget(userId: Int) {
+        viewModelScope.launch {
+            val budgets = budgetDao.getBudgetsByUserId(userId)
+            if (budgets.isNotEmpty()) {
+                _currentBudget.value = budgets.last() // or sort by date if needed
+            }
+        }
+    }
+
+
+        fun resetIfNewPeriod(budgetId: Int) {
         viewModelScope.launch {
             val budget = getBudgetById(budgetId)
             val now = System.currentTimeMillis()
