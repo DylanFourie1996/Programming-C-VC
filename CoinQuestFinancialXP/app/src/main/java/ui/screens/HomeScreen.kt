@@ -234,7 +234,7 @@ fun HomeScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal=16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -293,6 +293,8 @@ fun HomeScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
             }
+
+            Spacer(modifier=Modifier.height(24.dp))
         }
     }
 }

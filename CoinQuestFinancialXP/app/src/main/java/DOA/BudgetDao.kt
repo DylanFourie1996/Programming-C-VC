@@ -40,4 +40,8 @@ interface BudgetDao {
     @Query("SELECT * FROM budget WHERE userId=:userId")
     fun getAllBudgets(userId : Int) : Flow<List<BudgetModel>>
 
+    @Query("DELETE FROM budget WHERE userId = :userId")
+    suspend fun deleteBudgetByUserId(userId: Int)
+
+
 }

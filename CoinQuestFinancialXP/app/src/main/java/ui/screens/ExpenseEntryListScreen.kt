@@ -48,6 +48,7 @@ import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 import ui.screens.CategoryDropdown
+import java.text.SimpleDateFormat
 
 @Composable
 fun CategorySpendScreen(navController: NavController) {
@@ -152,6 +153,7 @@ fun ExpenseEntryRow(
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var actualTitle by remember {mutableStateOf("")}
     var customColors = LocalCustomColors.current
+    val simpleDateFormat = SimpleDateFormat("yyyy-mm-dd' | Time: 'HH:mm:ss")
 
     // Load the image from the URI (photoUri)
     LaunchedEffect(entry.photoUri) {
@@ -196,9 +198,10 @@ fun ExpenseEntryRow(
 
                     Text(
                         "Category: $actualTitle",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text("Spend: ${entry.spend}", style = MaterialTheme.typography.bodyMedium)
+                    Text("Date: ${simpleDateFormat.format(entry.creationDate)}", style = MaterialTheme.typography.bodyMedium)
                 }
 
                 if (bitmap != null) {
@@ -296,7 +299,7 @@ fun UpdateCategorySpendScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Spend Title input field
                 StandardTextBox(
@@ -306,7 +309,7 @@ fun UpdateCategorySpendScreen(
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier=Modifier.height(8.dp))
+                Spacer(modifier=Modifier.height(16.dp))
                 // Spend input field
                 StandardTextBox(
                     value = spend,
@@ -316,7 +319,7 @@ fun UpdateCategorySpendScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Upload Image button
                 StandardButton(
@@ -324,7 +327,7 @@ fun UpdateCategorySpendScreen(
                     text="Upload Image",
                     onClick = { /* Open image picker */ })
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Display selected image URI
                 Text("Selected Image URI: $photoUri", fontSize = 12.sp)
@@ -344,8 +347,9 @@ fun UpdateCategorySpendScreen(
                         }
 
                         val updatedModel = it.copy(
-                            ItemName = selectedCategory!!.title ?: "",
+                            ItemName = spendTitle ?: "",
                             spend = spendValue,
+                            category=selectedCategory!!.id,
                             photoUri = photoUri
                         )
 

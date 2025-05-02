@@ -34,6 +34,7 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         )
 
         viewModelScope.launch {
+            budgetDao.deleteBudgetByUserId(userId)
             budgetDao.insertBudget(newBudget)
         }
     }
@@ -119,6 +120,7 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
             }
         }
     }
+
 
     // Optional: For displaying budget info cleanly
     fun getDisplayBudget(budget: BudgetModel): String {

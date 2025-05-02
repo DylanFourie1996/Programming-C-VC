@@ -3,6 +3,7 @@ package Model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(
     tableName = "categoryspend",
@@ -21,5 +22,6 @@ data class CategorySpendModel(
     val ItemName:String,
     val category: Int,
     val spend: Float,
+    val creationDate: Date,
     val photoUri: String,
 )
