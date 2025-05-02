@@ -4,23 +4,33 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -97,6 +107,8 @@ fun AchievementScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
+                windowInsets=WindowInsets(0.dp),
+                modifier=Modifier.padding(0.dp),
                 title = {
                     Text(
                         text = "Achievements",
@@ -105,7 +117,7 @@ fun AchievementScreen(navController: NavHostController) {
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 navigationIcon = {
@@ -131,21 +143,34 @@ fun AchievementScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     text = "Collect them all!",
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally),
+                    fontWeight=FontWeight.SemiBold
                 )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                /*FlowRow(
+                    //columns = GridCells.Fixed(2),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    maxItemsInEachRow=2,
+
                 ) {
-                    items(achievements) { achievement ->
-                        AchievementCard(achievement)
+
+
+                }*/
+                achievements.chunked(2).forEach { pair ->
+                    Row(
+                        modifier=Modifier.fillMaxWidth().padding(vertical=8.dp, horizontal=16.dp),
+                        horizontalArrangement=Arrangement.spacedBy(16.dp)
+                    ) {
+                        pair.forEach { ach ->
+                            AchievementCard(achievement=ach, mod=Modifier.weight(1f))
+                        }
                     }
                 }
             }
@@ -154,11 +179,14 @@ fun AchievementScreen(navController: NavHostController) {
 }
 
 @Composable
-fun AchievementCard(achievement: Achievement) {
+fun AchievementCard(achievement: Achievement, mod : Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(0.8f),
+        modifier = (if (!expanded) mod.aspectRatio(0.8f)
+            .wrapContentHeight() else mod.wrapContentHeight()).clickable{
+                expanded = !expanded
+        },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (achievement.isUnlocked)

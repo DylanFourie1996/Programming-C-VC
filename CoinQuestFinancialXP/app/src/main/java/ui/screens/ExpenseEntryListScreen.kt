@@ -70,6 +70,7 @@ fun CategorySpendScreen(navController: NavController) {
     var error by remember { mutableStateOf<String?>(null) }
     var selectedEntryId by remember { mutableStateOf<Int?>(null) }
     var pageTitle by remember {mutableStateOf("Expenses")}
+    var removeSpace by remember {mutableStateOf(false)}
     // Trigger fetch on composition
     LaunchedEffect(Unit) {
         viewModel.getAllUserEntries(userId) {
@@ -78,11 +79,12 @@ fun CategorySpendScreen(navController: NavController) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal=16.dp).padding(top=16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(pageTitle, style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier=Modifier.height(8.dp))
         Divider(modifier=Modifier.width(350.dp))
-        Spacer(modifier=Modifier.height(32.dp))
+        if (!removeSpace)
+            Spacer(modifier=Modifier.height(32.dp))
 
         if (isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -94,6 +96,7 @@ fun CategorySpendScreen(navController: NavController) {
             Text("No expense entries found.")
         } else {
             if (selectedEntryId == null) {
+                removeSpace = false
                 pageTitle = "Expenses"
                 // Show the list of entries
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -116,6 +119,7 @@ fun CategorySpendScreen(navController: NavController) {
                     }
                 }
             } else {
+                removeSpace = true
                 pageTitle = "Modifying Expense"
                 // Show the update screen for the selected entry
                 val entry = entries.find { it.id == selectedEntryId }
@@ -271,14 +275,6 @@ fun UpdateCategorySpendScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Update Entry") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
         }
     ) { padding ->
         Column(modifier = Modifier
@@ -353,6 +349,7 @@ fun UpdateCategorySpendScreen(
                         }
                     }
                 )
+                Spacer(modifier=Modifier.height(16.dp))
             }
         }
     }
