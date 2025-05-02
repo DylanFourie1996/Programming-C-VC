@@ -150,8 +150,8 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
                         } else {
                             if (userExists) {
                                 println("User already exists.")
-                                showNameError = true
-                                accountErrorMessage = msg
+                                showEmailError = true
+                                emailErrorMessage = "Email is already being used by another account!"
                             }
                             if (!validEmail) {
                                 println("Email does not meet the requirements.")
