@@ -26,4 +26,7 @@ interface CategorySpendOnlyDao {
 
     @Delete
     suspend fun deleteEntry(entry: CategorySpendModel)
+
+    @Query("SELECT * FROM categoryspend WHERE category = :category ORDER BY id DESC LIMIT 3")
+    suspend fun getLatestThreeByCategory(category: Int): List<CategorySpendModel>
 }

@@ -45,6 +45,13 @@ class CategorySpendOnlyViewModel(
         }
     }
 
+    fun getLatestThreeByCategory(category: Int, onResult: (List<CategorySpendModel>) -> Unit) {
+        viewModelScope.launch {
+            val result = categorySpendOnlyDao.getLatestThreeByCategory(category)
+            onResult(result)
+        }
+    }
+
 
     fun updateEntry(entry: CategorySpendModel, onDone: () -> Unit = {}) {
         viewModelScope.launch {

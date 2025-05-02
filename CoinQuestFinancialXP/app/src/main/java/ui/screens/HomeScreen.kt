@@ -116,7 +116,7 @@ fun HomeScreen(navController: NavHostController) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                Surface(
+                                /*Surface(
                                     color = MaterialTheme.colorScheme.primaryContainer,
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
@@ -131,6 +131,7 @@ fun HomeScreen(navController: NavHostController) {
                                     )
                                 }
 
+
                                 SmallFloatingActionButton(
                                     onClick = {
                                         navController.navigate(Screen.CaptureNewBudget.route)
@@ -144,6 +145,7 @@ fun HomeScreen(navController: NavHostController) {
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
+                                 */
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
