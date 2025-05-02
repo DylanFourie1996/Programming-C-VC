@@ -57,11 +57,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.room.ktx)
     implementation ("org.mindrot:jbcrypt:0.4")
-
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1") // Add this line
 
-
+    implementation("androidx.compose.runtime:runtime:1.6.0") // Adjust to your Compose version
+    implementation("androidx.compose.ui:ui:1.6.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

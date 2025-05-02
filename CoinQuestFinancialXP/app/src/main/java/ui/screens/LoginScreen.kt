@@ -1,11 +1,9 @@
 package com.example.coinquestfinancialxp.ui.screens
 
-import Utils.SessionManager
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -27,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquestfinancialxp.R
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import ui.CustomComposables.StandardButton
@@ -36,10 +35,9 @@ import ui.CustomComposables.StandardTextBox
 @Composable
 fun LoginScreen(navController: NavController, routeEmail : String? = null, onLoginSuccess: (userID : Int, userEmail : String, userName : String) -> Unit) {
     BackHandler {  }
-
+//    val achievementDoa: AchievementDoa
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-
     val customColors = LocalCustomColors.current
 
     val context = LocalContext.current

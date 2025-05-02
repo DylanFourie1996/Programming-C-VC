@@ -21,9 +21,7 @@ class SessionManager private constructor(context: Context) {
         }
     }
 
-
-
-    fun saveUserSession(id: Int, email: String, name :String) {
+    fun saveUserSession(id: Int, email: String, name: String) {
         prefs.edit().apply {
             putInt(USER_ID, id)
             putString(USER_EMAIL, email)
@@ -43,4 +41,13 @@ class SessionManager private constructor(context: Context) {
     }
 
     fun isLoggedIn(): Boolean = getUserId() != -1 && getUserEmail() != null
+
+    // ADD THESE METHODS:
+    fun setTempData(key: String, value: String) {
+        prefs.edit().putString(key, value).apply()
+    }
+
+    fun getTempData(key: String): String? {
+        return prefs.getString(key, null)
+    }
 }

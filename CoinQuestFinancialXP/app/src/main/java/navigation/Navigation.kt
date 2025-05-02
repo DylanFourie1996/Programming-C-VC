@@ -1,26 +1,29 @@
 package com.example.coinquestfinancialxp.navigation
 
+import Screens.CategorySpendScreen
 import Utils.SessionManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.coinquestfinancialxp.navigation.Screen.BudgetEntryList
-import com.example.coinquestfinancialxp.navigation.Screen.CategoryCreation
-import com.example.coinquestfinancialxp.ui.screens.*
-import ui.screens.BudgetEntryList
+import com.example.coinquestfinancialxp.ui.screens.HomeScreen
+import com.example.coinquestfinancialxp.ui.screens.LoginScreen
+import com.example.coinquestfinancialxp.ui.screens.ProfileScreen
+import com.example.coinquestfinancialxp.ui.screens.SettingsScreen
+import ui.screens.AchievementScreen
+import ui.screens.CaptureCategorySpendScreen
 import ui.screens.CaptureNewBudgetScreen
 import ui.screens.CategoryCreation
 import ui.screens.RegisterScreen
+import ui.screens.StatsScreen
 
 @Composable
 fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNavbarChanged: (Boolean) -> Unit, onToggleTheme: () -> Unit) {
     val context = LocalContext.current
-    // Get Session Manager
     val sessionManager = remember { SessionManager.getInstance(context=context) }
 
     val startDest = if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
@@ -68,6 +71,24 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             onShowNavbarChanged(true)
             ProfileScreen(navController)
         }
+
+        composable(Screen.AchievementScreen.route) {
+            if (checkSessionAndRedirect(sessionManager, navController)) {
+                return@composable
+            }
+            onShowNavbarChanged(true)
+            AchievementScreen(navController)
+        }
+
+
+        composable(Screen.StatsScreen.route) {
+            if (checkSessionAndRedirect(sessionManager, navController)) {
+                return@composable
+            }
+            onShowNavbarChanged(true)
+            StatsScreen(navController)
+        }
+
         composable(Screen.Settings.route) {
             if (checkSessionAndRedirect(sessionManager, navController)) {
                 return@composable
@@ -75,6 +96,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             onShowNavbarChanged(true)
             SettingsScreen(navController, isDarkTheme, onToggleTheme)
         }
+
         composable(Screen.Register.route) {
             RegisterScreen(navController, onRegisterSuccess = { email ->
                 // If the register is successful, take user to the login page!
@@ -82,12 +104,22 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
             })
         }
 
-        composable(Screen.BudgetEntryList.route) {
+
+        composable(Screen.CategorySpendScreen.route) {
             if (checkSessionAndRedirect(sessionManager, navController)) {
                 return@composable
             }
             onShowNavbarChanged(true)
-            BudgetEntryList(navController)
+            CategorySpendScreen(navController)
+        }
+
+
+        composable(Screen.CaptureCategorySpendScreen.route) {
+            if (checkSessionAndRedirect(sessionManager, navController)) {
+                return@composable
+            }
+            onShowNavbarChanged(true)
+            CaptureCategorySpendScreen(navController)
         }
 
         composable(Screen.CaptureNewBudget.route) {

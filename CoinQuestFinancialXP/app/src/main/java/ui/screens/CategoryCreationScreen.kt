@@ -45,14 +45,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import kotlinx.coroutines.delay
 import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardTextBox
+
 
 @Composable
 fun CategoryCreation(navController : NavController) {
@@ -75,6 +73,7 @@ fun CategoryCreation(navController : NavController) {
         }
 
     }
+
     ) { paddingParameter ->
         LazyColumn(modifier= Modifier.padding(paddingParameter), contentPadding= PaddingValues(bottom=32.dp)) {
 
@@ -184,7 +183,6 @@ fun Tag(categoryViewModel : CategoryViewModel, category : CategoryModel)
             }
         }
     }
-
     if (!visible) {
         LaunchedEffect(Unit) {
             delay(150)

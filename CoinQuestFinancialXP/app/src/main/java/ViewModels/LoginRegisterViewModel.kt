@@ -1,20 +1,29 @@
 package ViewModels
 
+import Model.AchievementModel
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquest.data.UserDao
 import com.example.coinquest.data.UserModel
 import kotlinx.coroutines.launch
 import org.mindrot.jbcrypt.BCrypt
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 
-    fun login(email : String, password : String, onResult: (Boolean, Boolean, Boolean, Int, String, String?) -> Unit) {
+
+    fun login(email: String, password: String, onResult: (Boolean, Boolean, Boolean, Int, String, String?) -> Unit,) {
         viewModelScope.launch {
             try {
+//                val achievementDoa: AchievementDoa
+
                 val user = userDao.getUserByEmail(email)
-                var userExists = user != null
+                val userExists = user != null
                 var passwordMatches = false
 
                 if (userExists) {
@@ -29,32 +38,44 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
 
                 val success = userExists && passwordMatches
 
-                println("Login Attempt: Email=$email, Password=$password; User Exists?: ${user != null}")  // Debug Statement
-                onResult(
-                    success,
-                    userExists,
-                    passwordMatches,
-                    user!!.id,
-                    user.name,
-                    message
-                ) // Pass back if password matches as well, to check if the user is logging in or not.
-            } catch (e : Exception) {
+                //This block will set achievement as one:first login
+                if (success) {
+//                    val firstLogin = achievementDoa.isAchievementUnlocked(user.id, 1) == false
+//                    if (firstLogin) {
+//
+//                        val achievementOne = AchievementModel(
+//                            userId = user.id,
+//                            achievementOneId = 1 // Inserting 1 is the ID for the "First Login" achievement
+//                        )
+//                        achievementDoa.insertUserAchievement(achievementOne)
+//                        println("First Login Achievement Awarded to User ID: ${user.id}")
+//                    }
+                    println("Login Attempt: Email=$email, Password=$password; User Exists?: ${user != null}")
+                    onResult(
+                        success,
+                        userExists,
+                        passwordMatches,
+                        user!!.id,
+                        user.name,
+                        message
+                    )
+                } else {
+                    onResult(false, false, false, -1, "", message)
+                }
+            } catch (e: Exception) {
                 e.printStackTrace()
                 onResult(false, false, false, -1, "null", "error")
             }
         }
     }
 
-    fun register(name : String, email : String, password : String, onResult: (Boolean, Boolean, Boolean, Boolean, String?) -> Unit) {
+    fun register(name: String, email: String, password: String, onResult: (Boolean, Boolean, Boolean, Boolean, String?) -> Unit) {
         viewModelScope.launch {
             try {
-                // Create bool expressions to validate registration
                 val userExists = userDao.getUserByEmail(email) != null
                 val validName = name.isNotEmpty()
                 val validEmail = email.isNotEmpty() && email.matches(emailRegex)
                 val validPassword = password.length >= 8
-
-                // bool expr that combines the previous 3 expressions for overall validation
                 val success = !userExists && validName && validEmail && validPassword
                 var message: String? = null
 
@@ -65,17 +86,21 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                     userExists -> message = "User already exists"
                 }
 
+                println("Register Attempt: Email=$email, Password=$password; Account will be registered?: ${!userExists}")
 
-                println("Register Attempt: Email=$email, Password=$password; Account will be registered?: ${!userExists}") // Debug Statement
                 if (success) {
                     val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
                     val newUser = UserModel(name = name, email = email, password = hashedPassword)
                     userDao.insertUser(newUser)
+
+                    //When Date is Created It will be saved in the DB.The function is for Achievement
+                    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                    val readableDate = sdf.format(Date(newUser.dateCreated))
+                    println("User registered on: $readableDate")
                 }
 
-                // Pass back the true if the user did not exist on register, or false if the user already existed.
                 onResult(success, userExists, validEmail, validPassword, message)
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
                 onResult(false, false, false, false, "Error")
             }
@@ -86,13 +111,9 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
         viewModelScope.launch {
             try {
                 val user : UserModel? = userDao.getUserById(userID)
-
                 val userExists = user != null
-
-
                 if (userExists) {
                     val userCredentialsMatch = userID == user.id && email == user.email
-
                     if (userCredentialsMatch) {
                         userDao.deleteUserById(userID)
                         onResult(true)

@@ -8,7 +8,7 @@ import com.example.coinquest.data.DatabaseProvider
 
 class LoginRegisterViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass : Class<T>) : T {
-        val userDao = DatabaseProvider.getDatabase(context).UserDao()
+        val userDao = DatabaseProvider.getDatabase(context).userDao()
 
         return LoginRegisterViewModel(userDao) as T
     }

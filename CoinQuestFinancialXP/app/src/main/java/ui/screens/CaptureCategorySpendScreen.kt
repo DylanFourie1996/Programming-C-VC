@@ -2,7 +2,6 @@ package ui.screens
 
 import Model.CategorySpendModel
 import Utils.SessionManager
-import ViewModels.CategorySpendViewModel
 import ViewModels.Factories.CategorySpendViewModelFactory
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -21,6 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.coinquest.data.DatabaseProvider
+import com.example.coinquest.viewmodel.CategorySpendViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,12 +44,16 @@ fun CategoryDropdown(
             label = { Text("Category") },
             readOnly = true,
             trailingIcon = {
-                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = "Expand category list")
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Expand category list"
+                )
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .menuAnchor()
         )
+
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
@@ -73,7 +80,8 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
 
     val viewModel: CategorySpendViewModel = viewModel(
         factory = CategorySpendViewModelFactory(
-            DatabaseProvider.getDatabase(context).CategorySpendDao()
+            categorySpendDao = DatabaseProvider.getDatabase(context).categorySpendDao(),
+            budgetDao = DatabaseProvider.getDatabase(context).budgetDao()
         )
     )
 
@@ -82,12 +90,12 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
     var photoUri by remember { mutableStateOf("") }
     val categories = listOf("Food", "Transport", "Entertainment", "Bills")
 
-    // Image picker
     val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         photoUri = uri?.toString() ?: ""
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
+        // Display user details if logged in
         if (currentUserId != -1 && currentUserEmail != null) {
             Text("Logged in as: $currentUserEmail (ID: $currentUserId)")
         } else {
@@ -96,15 +104,16 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Category
+        // Category Dropdown
         CategoryDropdown(
             categories = categories,
             selectedCategory = category,
             onCategorySelected = { category = it }
         )
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Spend
+        // Spend input field
         TextField(
             value = spend,
             onValueChange = { spend = it },
@@ -112,31 +121,56 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Upload image
+        // Upload Image button
         Button(onClick = { imageLauncher.launch("image/*") }) {
             Text("Upload Image")
         }
+
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Display selected image URI
         Text("Selected Image URI: $photoUri")
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // Save Spend button
         Button(
             onClick = {
-                if (category.isNullOrBlank() || spend.isBlank()) {
-                    Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                } else {
-                    val model = CategorySpendModel(
-                        budgetId = currentUserId,
-                        category = categories.indexOf(category),
-                        spend = spend.toFloatOrNull() ?: 0f,
-                        photoUri = photoUri
-                    )
-                    viewModel.insertCategorySpendAndUpdateBudget(model)
-                    navController.popBackStack()
+                // Basic validation
+                val spendValue = spend.toFloatOrNull()
+                val categoryIndex = categories.indexOf(category)
+
+                if (category.isNullOrBlank() || spendValue == null || categoryIndex == -1 || currentUserId == -1) {
+                    Toast.makeText(context, "Please enter valid spend and select a category.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                }
+
+                // Create CategorySpendModel
+                val model = CategorySpendModel(
+                    budgetId = currentUserId,
+                    ItemName = category ?: "",
+                    category = categoryIndex,
+                    spend = spendValue,
+                    photoUri = photoUri
+                )
+
+                // Insert and update budget in the database
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        viewModel.insertSpendAndUpdateBudget(model) {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(context, "Spend saved successfully!", Toast.LENGTH_SHORT).show()
+                                navController.popBackStack()  // Go back after saving
+                            }
+                        }
+                    } catch (e: Exception) {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
                 }
             },
             modifier = Modifier.align(Alignment.End)

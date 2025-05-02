@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -59,11 +61,11 @@ fun HomeScreen(navController: NavHostController) {
                 ),
                 actions = {
                     IconButton(onClick = {
-                        navController.navigate(Screen.CaptureNewBudget.route) // Rout that the uer  can click on
+                        navController.navigate(Screen.Profile.route) // Rout that the uer  can click on
                     }) {
                         Icon(
-                            imageVector = Icons.Filled.Face,//Achievement Page, We can Make it profile or Achievement or Bell
-                            contentDescription = "Achievements",
+                            imageVector = Icons.Filled.Person,// This Profile Page
+                            contentDescription = "Profile Page",
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
@@ -103,7 +105,10 @@ fun HomeScreen(navController: NavHostController) {
                                 ) {
                                     Text(
                                         text = "Create Budget",
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                        modifier = Modifier.padding(
+                                            horizontal = 12.dp,
+                                            vertical = 6.dp
+                                        ),
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
@@ -133,14 +138,16 @@ fun HomeScreen(navController: NavHostController) {
                                 ) {
                                     Text(
                                         text = "Insert Expense",
-                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                        modifier = Modifier.padding(
+                                            horizontal = 12.dp,
+                                            vertical = 6.dp
+                                        ),
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
-
                                 SmallFloatingActionButton(
                                     onClick = {
-                                        // navController.navigate(Screen.InsertExpense.route)
+                                        navController.navigate(Screen.CaptureCategorySpendScreen.route)
                                         expandedFab.value = false
                                     },
                                     containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -148,6 +155,38 @@ fun HomeScreen(navController: NavHostController) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "Insert Expense",
+                                        tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                }
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = RoundedCornerShape(16.dp),
+                                    modifier = Modifier.padding(end = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Add Category",
+                                        modifier = Modifier.padding(
+                                            horizontal = 12.dp,
+                                            vertical = 6.dp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+                                }
+                                SmallFloatingActionButton(
+                                    onClick = {
+                                        navController.navigate(Screen.CategoryCreation.route)
+                                        expandedFab.value = false
+                                    },
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Star,
+                                        contentDescription = "Add Category",
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
@@ -212,7 +251,7 @@ fun HomeScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { navController.navigate(Screen.BudgetEntryList.route) }, //Should Move it to Expense List
+                onClick = { navController.navigate(Screen.CategorySpendScreen.route) }, //Should Move it to Expense List
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = "Go To Expense List")
