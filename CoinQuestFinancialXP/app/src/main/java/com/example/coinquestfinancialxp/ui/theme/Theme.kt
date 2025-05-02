@@ -40,6 +40,7 @@ private val LightColorScheme = lightColorScheme(
 
 // Custom Color Data Class
 data class CustomColors(
+    val page : Color,
     val hyperlinkDefault: Color,
     val hyperlinkHover: Color,
     val hyperlinkInactive : Color,
@@ -65,6 +66,7 @@ data class CustomColors(
 
 val LocalCustomColors = staticCompositionLocalOf {
     CustomColors(
+        page = PageLight,
         hyperlinkDefault = TextBlack,
         hyperlinkHover = TextBlackHover,
         hyperlinkInactive = TextInactive,
@@ -110,6 +112,7 @@ fun CoinQuestFinancialXPTheme(
 
     val customColors = if (!darkTheme) {
         CustomColors(
+            page = PageLight,
             hyperlinkDefault = TextBlack,
             hyperlinkHover = TextBlackHover,
             hyperlinkInactive = TextInactive,
@@ -134,6 +137,7 @@ fun CoinQuestFinancialXPTheme(
         )
     } else {
         CustomColors(
+            page = PageDark,
             hyperlinkDefault = TextBlack,
             hyperlinkHover = TextBlackHover,
             hyperlinkInactive = TextInactive,

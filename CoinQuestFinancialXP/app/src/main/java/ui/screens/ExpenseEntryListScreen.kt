@@ -39,6 +39,7 @@ import java.io.File
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.sp
 import java.io.FileInputStream
 import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquest.viewmodel.CategorySpendOnlyViewModel
@@ -318,12 +319,12 @@ fun UpdateCategorySpendScreen(
                     text="Upload Image",
                     onClick = { /* Open image picker */ })
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Display selected image URI
-                Text("Selected Image URI: $photoUri")
+                Text("Selected Image URI: $photoUri", fontSize = 12.sp)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Save button
                 StandardButton(
