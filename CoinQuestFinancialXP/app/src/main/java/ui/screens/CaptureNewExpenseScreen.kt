@@ -1,8 +1,11 @@
 package ui.screens
 
+import Model.CategoryModel
 import Model.CategorySpendModel
 import Utils.SessionManager
+import ViewModels.CategoryViewModel
 import ViewModels.Factories.CategorySpendViewModelFactory
+import ViewModels.Factories.CategoryViewModelFactory
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,13 +27,14 @@ import com.example.coinquest.viewmodel.CategorySpendViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ui.CustomComposables.StandardTextBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryDropdown(
-    categories: List<String>,
+    categories: List<CategoryModel>,
     selectedCategory: String?,
-    onCategorySelected: (String) -> Unit
+    onCategorySelected: (CategoryModel) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -58,9 +62,9 @@ fun CategoryDropdown(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            categories.forEach { category ->
+            categories.forEach { category : CategoryModel ->
                 DropdownMenuItem(
-                    text = { Text(category) },
+                    text = { Text(category.title) },
                     onClick = {
                         onCategorySelected(category)
                         expanded = false
@@ -85,10 +89,13 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
         )
     )
 
-    var category by remember { mutableStateOf<String?>(null) }
+    var selectedCategory by remember { mutableStateOf<CategoryModel?>(null) }
+    var spendTitle by remember { mutableStateOf("") }
     var spend by remember { mutableStateOf("") }
     var photoUri by remember { mutableStateOf("") }
-    val categories = listOf("Food", "Transport", "Entertainment", "Bills")
+
+    var categoryViewModel : CategoryViewModel = viewModel(factory= CategoryViewModelFactory(context))
+    val categories by categoryViewModel.allCategories.collectAsState()
 
     val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         photoUri = uri?.toString() ?: ""
@@ -107,17 +114,26 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
         // Category Dropdown
         CategoryDropdown(
             categories = categories,
-            selectedCategory = category,
-            onCategorySelected = { category = it }
+            selectedCategory = selectedCategory?.title,
+            onCategorySelected = { selectedCategory = it }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         // Spend input field
-        TextField(
+        StandardTextBox(
+            value = spendTitle,
+            onValueChange = { spendTitle = it },
+            placeholder="Expense Title",
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Spend input field
+        StandardTextBox(
             value = spend,
             onValueChange = { spend = it },
-            label = { Text("Spend (R)") },
+            placeholder="Spend (R)",
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )
@@ -141,9 +157,9 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             onClick = {
                 // Basic validation
                 val spendValue = spend.toFloatOrNull()
-                val categoryIndex = categories.indexOf(category)
+                val categoryIndex = categories.indexOf(selectedCategory)
 
-                if (category.isNullOrBlank() || spendValue == null || categoryIndex == -1 || currentUserId == -1) {
+                if (selectedCategory == null || spendValue == null || categoryIndex == -1 || currentUserId == -1) {
                     Toast.makeText(context, "Please enter valid spend and select a category.", Toast.LENGTH_SHORT).show()
                     return@Button
                 }
@@ -151,7 +167,7 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
                 // Create CategorySpendModel
                 val model = CategorySpendModel(
                     budgetId = currentUserId,
-                    ItemName = category ?: "",
+                    ItemName = spendTitle,
                     category = categoryIndex,
                     spend = spendValue,
                     photoUri = photoUri

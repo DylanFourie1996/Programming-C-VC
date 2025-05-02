@@ -60,6 +60,14 @@ class CategoryViewModel(private val categoryDao : CategoryDao, sessionManager: S
         }
     }
 
+    fun getCategoryById(categoryId: Int, onResult: (CategoryModel?) -> Unit)
+    {
+        viewModelScope.launch {
+            var category = categoryDao.getCategoryById(categoryId)
+            onResult(category)
+        }
+    }
+
     val allCategories : StateFlow<List<CategoryModel>> = categoryDao.getAllCategories(sessionManager.getUserId())
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList<CategoryModel>())
 

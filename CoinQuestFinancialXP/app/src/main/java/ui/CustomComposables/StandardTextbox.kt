@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun StandardTextBox(
     modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder : String = "",
@@ -58,6 +60,7 @@ fun StandardTextBox(
         onValueChange=onValueChange,
         enabled=enabled,
         singleLine=true,
+        keyboardOptions=keyboardOptions,
         placeholder = {
             Text(
                 text=placeholder,

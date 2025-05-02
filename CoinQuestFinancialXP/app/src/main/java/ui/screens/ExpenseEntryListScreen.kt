@@ -1,27 +1,34 @@
 package Screens
 
+import Model.CategoryModel
 import Model.CategorySpendModel
 import Utils.SessionManager
+import ViewModels.CategoryViewModel
 import ViewModels.Factories.CategorySpendOnlyViewModelFactory
+import ViewModels.Factories.CategoryViewModelFactory
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -30,11 +37,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.io.File
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import java.io.FileInputStream
 import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquest.viewmodel.CategorySpendOnlyViewModel
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
+import ui.CustomComposables.StandardButton
+import ui.CustomComposables.StandardButtonTheme
+import ui.CustomComposables.StandardTextBox
 import ui.screens.CategoryDropdown
 
 @Composable
@@ -45,7 +56,12 @@ fun CategorySpendScreen(navController: NavController) {
 
     val viewModel: CategorySpendOnlyViewModel = viewModel(
         factory = CategorySpendOnlyViewModelFactory(
-            DatabaseProvider.getDatabase(context).categorySpendOnlyDao()
+            context
+        )
+    )
+    val categoryViewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModelFactory(
+            context
         )
     )
 
@@ -53,7 +69,7 @@ fun CategorySpendScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var selectedEntryId by remember { mutableStateOf<Int?>(null) }
-
+    var pageTitle by remember {mutableStateOf("Expenses")}
     // Trigger fetch on composition
     LaunchedEffect(Unit) {
         viewModel.getAllUserEntries(userId) {
@@ -62,8 +78,11 @@ fun CategorySpendScreen(navController: NavController) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Your Expense Entries", style = MaterialTheme.typography.headlineMedium)
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(pageTitle, style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier=Modifier.height(8.dp))
+        Divider(modifier=Modifier.width(350.dp))
+        Spacer(modifier=Modifier.height(32.dp))
 
         if (isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -75,10 +94,12 @@ fun CategorySpendScreen(navController: NavController) {
             Text("No expense entries found.")
         } else {
             if (selectedEntryId == null) {
+                pageTitle = "Expenses"
                 // Show the list of entries
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(entries, key = { it.id }) { entry ->
                         ExpenseEntryRow(
+                            categoryViewModel=categoryViewModel,
                             entry = entry,
                             onUpdate = { updated ->
                                 // Set the selected entry and navigate to the update section
@@ -95,6 +116,7 @@ fun CategorySpendScreen(navController: NavController) {
                     }
                 }
             } else {
+                pageTitle = "Modifying Expense"
                 // Show the update screen for the selected entry
                 val entry = entries.find { it.id == selectedEntryId }
                 entry?.let {
@@ -116,12 +138,15 @@ fun CategorySpendScreen(navController: NavController) {
 
 @Composable
 fun ExpenseEntryRow(
+    categoryViewModel: CategoryViewModel,
     entry: CategorySpendModel,
     onUpdate: (CategorySpendModel) -> Unit,
     onDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var actualTitle by remember {mutableStateOf("")}
+    var customColors = LocalCustomColors.current
 
     // Load the image from the URI (photoUri)
     LaunchedEffect(entry.photoUri) {
@@ -140,6 +165,7 @@ fun ExpenseEntryRow(
             .fillMaxWidth()
             .padding(vertical = 6.dp, horizontal = 12.dp)
             .clickable { expanded = !expanded },
+        colors=CardDefaults.cardColors(containerColor=customColors.TextBoxBG),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -150,8 +176,20 @@ fun ExpenseEntryRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text("Item: ${entry.ItemName}", style = MaterialTheme.typography.bodyLarge)
-                    Text("Category: ${entry.category}", style = MaterialTheme.typography.bodySmall)
+                    Text(entry.ItemName, style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier=Modifier.height(5.dp))
+                    Divider()
+                    Spacer(modifier=Modifier.height(8.dp))
+                    categoryViewModel.getCategoryById(entry.category)
+                    { actualCategory : CategoryModel? ->
+
+                        actualTitle = actualCategory!!.title
+                    }
+
+                    Text(
+                        "Category: $actualTitle",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                     Text("Spend: ${entry.spend}", style = MaterialTheme.typography.bodyMedium)
                 }
 
@@ -204,19 +242,29 @@ fun UpdateCategorySpendScreen(
 
     val viewModel: CategorySpendOnlyViewModel = viewModel(
         factory = CategorySpendOnlyViewModelFactory(
-            DatabaseProvider.getDatabase(context).categorySpendOnlyDao()
+            context
         )
     )
     var entry by remember { mutableStateOf<CategorySpendModel?>(null) }
-    var category by remember { mutableStateOf<String?>(null) }
+    var selectedCategory by remember { mutableStateOf<CategoryModel?>(null) }
     var spend by remember { mutableStateOf("") }
+    var spendTitle by remember {mutableStateOf("")}
     var photoUri by remember { mutableStateOf("") }
+
+
+
+    var categoryViewModel : CategoryViewModel = viewModel(factory= CategoryViewModelFactory(context))
+    val categories by categoryViewModel.allCategories.collectAsState()
 
     LaunchedEffect(entryId) {
         viewModel.getEntryById(entryId) { data ->
+            // Retrieve and set the selectedCategory to the chosen category for this expense when created.
+            categoryViewModel.getCategoryById(data!!.category) { grabbedCat ->
+                selectedCategory = grabbedCat
+            }
             entry = data
-            category = data?.ItemName
             spend = data?.spend?.toString() ?: ""
+            spendTitle = data!!.ItemName
             photoUri = data?.photoUri ?: ""
         }
     }
@@ -234,24 +282,34 @@ fun UpdateCategorySpendScreen(
         }
     ) { padding ->
         Column(modifier = Modifier
-            .padding(padding)
-            .padding(16.dp)) {
+            .padding(padding).padding(horizontal=32.dp).verticalScroll(rememberScrollState())) {
 
             entry?.let {
                 // Category Dropdown
-                CategoryDropdown(
-                    categories = listOf("Food", "Transport", "Entertainment", "Bills"),
-                    selectedCategory = category,
-                    onCategorySelected = { category = it.toString() }
-                )
+                if (selectedCategory != null) {
+                    CategoryDropdown(
+                        categories = categories,
+                        selectedCategory = selectedCategory!!.title,
+                        onCategorySelected = { selectedCategory = it }
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Spend Title input field
+                StandardTextBox(
+                    value = spendTitle,
+                    onValueChange = { spendTitle = it },
+                    placeholder = "Expense Title",
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier=Modifier.height(8.dp))
                 // Spend input field
-                TextField(
+                StandardTextBox(
                     value = spend,
                     onValueChange = { spend = it },
-                    label = { Text("Spend (R)") },
+                    placeholder="Spend (R)",
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -259,9 +317,10 @@ fun UpdateCategorySpendScreen(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Upload Image button
-                Button(onClick = { /* Open image picker */ }) {
-                    Text("Upload Image")
-                }
+                StandardButton(
+                    modifier=Modifier.padding(horizontal=32.dp),
+                    text="Upload Image",
+                    onClick = { /* Open image picker */ })
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -271,16 +330,19 @@ fun UpdateCategorySpendScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Save button
-                Button(
+                StandardButton(
+                    themeType= StandardButtonTheme.ORANGEGRAND,
+                    modifier=Modifier.padding(horizontal=32.dp),
+                    text="CONFIRM",
                     onClick = {
                         val spendValue = spend.toFloatOrNull()
-                        if (category.isNullOrBlank() || spendValue == null) {
+                        if (selectedCategory == null || spendValue == null) {
                             Toast.makeText(context, "Please enter valid spend and select a category.", Toast.LENGTH_SHORT).show()
-                            return@Button
+                            return@StandardButton
                         }
 
                         val updatedModel = it.copy(
-                            ItemName = category ?: "",
+                            ItemName = selectedCategory!!.title ?: "",
                             spend = spendValue,
                             photoUri = photoUri
                         )
@@ -289,11 +351,8 @@ fun UpdateCategorySpendScreen(
                             Toast.makeText(context, "Entry updated successfully", Toast.LENGTH_SHORT).show()
                             onUpdateComplete()
                         }
-                    },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Update Spend")
-                }
+                    }
+                )
             }
         }
     }
