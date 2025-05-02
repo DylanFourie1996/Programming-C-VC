@@ -53,24 +53,6 @@ fun HomeScreen(navController: NavHostController) {
     BackHandler {  }
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("CoinQuest Dashboard") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                ),
-                actions = {
-                    IconButton(onClick = {
-                        navController.navigate(Screen.Profile.route) // Rout that the uer  can click on
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Person,// This Profile Page
-                            contentDescription = "Profile Page",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
-            )
         },
         floatingActionButton = {
             Box(

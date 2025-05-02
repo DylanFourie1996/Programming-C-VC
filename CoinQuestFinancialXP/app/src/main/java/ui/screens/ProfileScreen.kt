@@ -6,10 +6,16 @@ import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Divider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -56,9 +62,9 @@ fun ProfileScreen(navController: NavHostController) {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .padding(innerPadding)
-                .padding(horizontal=16.dp),
+                .padding(horizontal=16.dp).verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -75,14 +81,34 @@ fun ProfileScreen(navController: NavHostController) {
                 trackColor = Color.Red,
                 strokeCap = Color.Black
             )*/
-            Text("Level 1", fontSize=12.sp)
-            Spacer(modifier=Modifier.height(8.dp))
-            LinearProgressIndicator(
-                progress = 0.5f,
-                modifier=Modifier.padding(horizontal=128.dp).clip(RoundedCornerShape(100.0f)).border(width=0.1.dp, color=Color.Black,shape=RoundedCornerShape(100.0f)),
-                color = customColors.ProgressBarColor,
+            Box(modifier=Modifier.fillMaxWidth()) {
+                Column(horizontalAlignment=Alignment.CenterHorizontally, modifier=Modifier.align(Alignment.Center)) {
+                    Text("2/6", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = 0.33f,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(100.0f)).border(
+                                width = 0.1.dp,
+                                color = Color.Black,
+                                shape = RoundedCornerShape(100.0f)
+                            ).width(75.dp),
+                        color = customColors.ProgressBarColor,
 
-            )
+                        )
+                }
+
+                Spacer(modifier = Modifier.width(32.dp))
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = Color(0.95f, 0.75f, 0.0f, 1.0f),
+                    modifier = Modifier.align(Alignment.Center).offset(x=60.dp).size(24.dp).clickable {
+                        navController.navigate(Screen.AchievementScreen.route)
+                    }
+                )
+
+            }
             Spacer(modifier=Modifier.height(32.dp))
             Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment=Alignment.CenterHorizontally) {
                 Divider(color=customColors.DividerColor1)
@@ -92,7 +118,7 @@ fun ProfileScreen(navController: NavHostController) {
                 Divider(color=customColors.DividerColor2)
             }
             Spacer(modifier=Modifier.height(64.dp))
-            Column(modifier=Modifier.weight(1.0f).padding(horizontal=32.dp)) {
+            Column(modifier=Modifier.padding(horizontal=32.dp).padding(bottom=32.dp)) {
                 StandardButton(text = "Log Out", onClick = {
 
 

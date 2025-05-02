@@ -37,7 +37,7 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                 }
 
                 val success = userExists && passwordMatches
-
+                println("Login Attempt: Email=$email, Password=$password; User Exists?: ${user != null}")
                 //This block will set achievement as one:first login
                 if (success) {
 //                    val firstLogin = achievementDoa.isAchievementUnlocked(user.id, 1) == false
@@ -50,7 +50,7 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
 //                        achievementDoa.insertUserAchievement(achievementOne)
 //                        println("First Login Achievement Awarded to User ID: ${user.id}")
 //                    }
-                    println("Login Attempt: Email=$email, Password=$password; User Exists?: ${user != null}")
+
                     onResult(
                         success,
                         userExists,
@@ -60,7 +60,14 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                         message
                     )
                 } else {
-                    onResult(false, false, false, -1, "", message)
+                    onResult(
+                        success,
+                        userExists,
+                        passwordMatches,
+                        user!!.id,
+                        user.name,
+                        message
+                    )
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

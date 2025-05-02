@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.coinquestfinancialxp.navigation.Navigation
 import com.example.coinquestfinancialxp.navigation.Navigation
 import com.example.coinquestfinancialxp.ui.BottomNavBar
+import com.example.coinquestfinancialxp.ui.TopNavBar
 import com.example.coinquestfinancialxp.ui.theme.CoinQuestFinancialXPTheme
 
 class MainActivity : ComponentActivity() {
@@ -53,7 +54,9 @@ fun MainScreen(isDarkTheme : Boolean, showNavBar : Boolean, onShowNavBarChanged:
     val navController = rememberNavController()
 
     Scaffold(
-        topBar = {  },
+        topBar = {
+            if (showNavBar) TopNavBar(navController)
+        },
         bottomBar = {
             if (showNavBar) BottomNavBar(navController)
         },
