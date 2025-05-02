@@ -6,6 +6,7 @@ import Utils.SessionManager
 import ViewModels.CategoryViewModel
 import ViewModels.Factories.CategorySpendOnlyViewModelFactory
 import ViewModels.Factories.CategoryViewModelFactory
+import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
@@ -17,6 +18,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -37,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.io.File
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
@@ -49,6 +51,8 @@ import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
 import ui.screens.CategoryDropdown
 import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun CategorySpendScreen(navController: NavController) {
@@ -68,6 +72,7 @@ fun CategorySpendScreen(navController: NavController) {
     )
 
     var entries by remember { mutableStateOf<List<CategorySpendModel>>(emptyList()) }
+    var selectedEntries by remember { mutableStateOf<List<CategorySpendModel>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var selectedEntryId by remember { mutableStateOf<Int?>(null) }
@@ -100,9 +105,13 @@ fun CategorySpendScreen(navController: NavController) {
             if (selectedEntryId == null) {
                 removeSpace = false
                 pageTitle = "Expenses"
+                // Show User Selectable Date
+                UserSelectableDate(entries=entries) { filtered ->
+                    selectedEntries = filtered
+                }
                 // Show the list of entries
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(entries, key = { it.id }) { entry ->
+                    items(selectedEntries.ifEmpty {entries}, key = { it.id }) { entry ->
                         ExpenseEntryRow(
                             categoryViewModel=categoryViewModel,
                             entry = entry,
@@ -137,6 +146,103 @@ fun CategorySpendScreen(navController: NavController) {
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserSelectableDate(entries: List<CategorySpendModel>,
+                       onFilter: (List<CategorySpendModel>) -> Unit)
+{
+    var startDateStr by remember {mutableStateOf("")}
+    var endDateStr by remember {mutableStateOf("")}
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    var expanded by remember {mutableStateOf(false)}
+
+    fun showDatePicker(onDateSelected : (String) -> Unit) {
+        DatePickerDialog(context, { _, year, month, day ->
+            onDateSelected("${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/$year")
+
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    fun filterLogic()
+    {
+        try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val startDate = sdf.parse(startDateStr)
+            val endDate = sdf.parse(endDateStr)
+
+            if (startDate != null && endDate != null)
+            {
+                val filtered = entries.filter {
+                    val entryDate = it.creationDate
+                    entryDate != null && !entryDate.before(startDate) && !entryDate.after(endDate)
+                }
+                onFilter(filtered)
+            }
+        } catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
+    Box(contentAlignment=Alignment.Center, modifier = Modifier.fillMaxWidth()
+    ) {
+        if (!expanded) {
+            OutlinedButton(onClick= {
+                // Expand box
+                expanded = !expanded
+            },
+                modifier=Modifier.width(300.dp)) {
+                Text("Click here to filter!")
+            }
+        }
+        if (expanded) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedButton(
+                        onClick = { showDatePicker { startDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(if (startDateStr.isNotEmpty()) startDateStr else "Start Date")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    OutlinedButton(
+                        onClick = { showDatePicker { endDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(if (endDateStr.isNotEmpty()) endDateStr else "End Date")
+                    }
+
+
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        // Filter
+                        filterLogic()
+                    },
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text("FILTER")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
