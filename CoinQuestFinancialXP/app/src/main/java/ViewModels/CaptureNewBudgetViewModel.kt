@@ -14,9 +14,15 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         const val MONTHLY = 3
     }
 
-    fun insertBudget(userId: Int, limit: Float, save: Float, durationType: Int, currency: String = "ZAR") {
-        if (save > limit) {
-            throw IllegalArgumentException("Savings cannot exceed budget limit.")
+    fun insertBudget(
+        userId: Int,
+        limit: Float,
+        save: Float,
+        durationType: Int,
+        currency: String = "ZAR"
+    ) {
+        require(save <= limit) {
+            "Savings cannot exceed budget limit."
         }
 
         val usableAmount = limit - save
@@ -38,8 +44,8 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
 
     fun calculateCurrentPeriod(startDate: Long, durationType: Int): Int {
         val now = System.currentTimeMillis()
-        val millisInDay = 86400000L
-        val daysPassed = (now - startDate) / millisInDay
+        val millisPerDay = 86_400_000L
+        val daysPassed = (now - startDate) / millisPerDay
 
         return when (durationType) {
             WEEKLY -> (daysPassed / 7).toInt() + 1
@@ -52,8 +58,8 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
     fun updateRemainingBalance(budgetId: Int, spendAmount: Float) {
         viewModelScope.launch {
             val budget = getBudgetById(budgetId)
-            val newRemainingBalance = budget.remainingBalance - spendAmount
-            updateBudgetRemainingBalance(budgetId, newRemainingBalance)
+            val newRemaining = budget.remainingBalance - spendAmount
+            updateBudgetRemainingBalance(budgetId, newRemaining)
         }
     }
 
@@ -69,14 +75,14 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         val now = System.currentTimeMillis()
         val elapsed = now - budget.startDate
 
-        val totalMillis = when (budget.durationType) {
-            WEEKLY -> 7 * 24 * 60 * 60 * 1000L
-            BIWEEKLY -> 14 * 24 * 60 * 60 * 1000L
-            MONTHLY -> 30 * 24 * 60 * 60 * 1000L
-            else -> 30 * 24 * 60 * 60 * 1000L
-        }
+        val periodMillis = when (budget.durationType) {
+            WEEKLY -> 7L
+            BIWEEKLY -> 14L
+            MONTHLY -> 30L
+            else -> 30L
+        } * 86_400_000L
 
-        return (elapsed.toFloat() / totalMillis).coerceIn(0f, 1f)
+        return (elapsed.toFloat() / periodMillis).coerceIn(0f, 1f)
     }
 
     fun resetIfNewPeriod(budgetId: Int) {
@@ -85,26 +91,27 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
             val now = System.currentTimeMillis()
 
             val periodLength = when (budget.durationType) {
-                WEEKLY -> 7 * 24 * 60 * 60 * 1000L
-                BIWEEKLY -> 14 * 24 * 60 * 60 * 1000L
-                MONTHLY -> 30 * 24 * 60 * 60 * 1000L
-                else -> 30 * 24 * 60 * 60 * 1000L
-            }
+                WEEKLY -> 7L
+                BIWEEKLY -> 14L
+                MONTHLY -> 30L
+                else -> 30L
+            } * 86_400_000L
 
             if (now - budget.startDate >= periodLength) {
                 val resetBalance = budget.limit - budget.save
-                val resetBudget = budget.copy(
+                val updatedBudget = budget.copy(
                     totalSpent = 0f,
                     remainingBalance = resetBalance,
                     startDate = now
                 )
-                budgetDao.updateBudget(resetBudget)
+                budgetDao.updateBudget(updatedBudget)
             }
         }
     }
 
-    // Optional: For displaying budget info cleanly
-    fun getDisplayBudget(budget: BudgetModel): String {
-        return "Budget: ${budget.currency} ${budget.limit} | Saving: ${budget.currency} ${budget.save} | Left: ${budget.currency} ${budget.remainingBalance}"
+    fun getDisplayBudget(budget: BudgetModel): String = buildString {
+        append("Budget: ${budget.currency} ${budget.limit} | ")
+        append("Saving: ${budget.currency} ${budget.save} | ")
+        append("Left: ${budget.currency} ${budget.remainingBalance}")
     }
 }

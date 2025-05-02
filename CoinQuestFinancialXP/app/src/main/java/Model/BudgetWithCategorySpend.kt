@@ -9,5 +9,14 @@ data class BudgetWithCategorySpend(
         parentColumn = "id",
         entityColumn = "budgetId"
     )
-    val categorySpend: List<CategorySpendModel>
+    val categorySpendList: List<CategorySpendWithCategory>
+)
+
+data class CategorySpendWithCategory(
+    @Embedded val categorySpend: CategorySpendModel,
+    @Relation(
+        parentColumn = "categoryId",
+        entityColumn = "id"
+    )
+    val category: CategoryModel
 )

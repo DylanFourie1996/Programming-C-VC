@@ -39,4 +39,7 @@ interface CategoryDao {
 
     @Delete
     suspend fun deleteCategory(category: CategoryModel)
+
+    @Query("SELECT * FROM category WHERE id = :id")
+    suspend fun getCategoryById(id : Int) : CategoryModel?
 }

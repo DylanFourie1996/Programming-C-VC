@@ -36,4 +36,7 @@ interface BudgetDao {
     @Query("DELETE FROM categoryspend WHERE id = :id")
     suspend fun deleteCategorySpendById(id: Int)
 
+    @Query("SELECT * FROM budget WHERE userId = :userId ORDER BY startDate DESC LIMIT 1")
+    suspend fun getLatestBudgetForUser(userId: Int): BudgetModel?
+
 }

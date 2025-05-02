@@ -16,7 +16,7 @@ import androidx.room.RoomDatabase
         CategorySpendModel::class,
         AchievementModel::class
     ],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
