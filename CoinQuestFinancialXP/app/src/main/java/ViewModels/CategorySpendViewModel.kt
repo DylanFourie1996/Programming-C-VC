@@ -21,6 +21,11 @@ class CategorySpendViewModel(
         return categorySpendDao.getCategorySpendPairs(userId, budgetId)
     }
 
+    fun getCategorySendPairsFiltered(userId : Int, budgetId : Int, startDate : String, endDate : String) : Flow<List<CategorySpendPair>>
+    {
+        return categorySpendDao.getCategorySpendPairsWithinDateRange(userId, budgetId, startDate, endDate)
+    }
+
 
 
     fun getSpendsForBudget(budgetId: Int, onResult: (List<CategorySpendModel>) -> Unit) {

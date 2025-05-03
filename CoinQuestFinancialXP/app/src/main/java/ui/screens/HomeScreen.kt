@@ -11,6 +11,7 @@ import ViewModels.CaptureNewBudgetViewModel
 import ViewModels.Factories.BudgetViewModelFactory
 import ViewModels.Factories.CaptureNewBudgetViewModelFactory
 import ViewModels.Factories.CategorySpendViewModelFactory
+import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -71,6 +72,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.collections.getValue
 import kotlin.collections.ifEmpty
 import kotlin.collections.setValue
@@ -93,6 +98,9 @@ fun HomeScreen(navController: NavHostController) {
 
     val spendPairs = remember {mutableStateListOf<CategorySpendPair>()}
 
+    var selectedStartDate by remember {mutableStateOf("")}
+    var selectedEndDate by remember {mutableStateOf("")}
+
 
     // Initialize ViewModel for BudgetViewModel
     var categorySpendViewModel : CategorySpendViewModel = viewModel(factory = CategorySpendViewModelFactory(
@@ -108,6 +116,18 @@ fun HomeScreen(navController: NavHostController) {
     var budget by remember {mutableStateOf<BudgetModel?>(null)}
 
     val sessionManager = SessionManager.getInstance(LocalContext.current)
+
+    LaunchedEffect(selectedStartDate, selectedEndDate) {
+        categorySpendViewModel.getCategorySendPairsFiltered(
+            userId=sessionManager.getUserId(),
+            budgetId=1,
+            startDate=selectedStartDate,
+            endDate=selectedEndDate
+        ).collect {filteredPairs ->
+            spendPairs.clear()
+            spendPairs.addAll(filteredPairs)
+        }
+    }
 
 
         // Check that budget has been created
@@ -131,13 +151,15 @@ fun HomeScreen(navController: NavHostController) {
                     }
                 }
 
-                categorySpendViewModel.getCategorySendPairs(
+
+
+                /*categorySpendViewModel.getCategorySendPairs(
                     userId = sessionManager.getUserId(),
                     budgetId=1
                 ).collect {pairs ->
                     spendPairs.clear()
                     spendPairs.addAll(pairs)
-                }
+                }*/
 
 
                 /*
@@ -366,7 +388,12 @@ fun HomeScreen(navController: NavHostController) {
 
                     Divider(modifier=Modifier.width(50.dp).padding(vertical=16.dp))
 
+                    UserSelectableDate {startDateStr, endDateStr ->
+                        selectedStartDate = startDateStr
+                        selectedEndDate = endDateStr
 
+
+                    }
                     BudgetProgressList(spendPairs, budget)
                 }
             }
@@ -387,6 +414,105 @@ fun HomeScreen(navController: NavHostController) {
         }
     }
 }
+
+@Composable
+fun UserSelectableDate(
+                       onFilter: (String, String) -> Unit)
+{
+    val customColors = LocalCustomColors.current
+    var startDateStr by remember {mutableStateOf("")}
+    var endDateStr by remember {mutableStateOf("")}
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    var expanded by remember {mutableStateOf(false)}
+
+    fun showDatePicker(onDateSelected : (String) -> Unit) {
+        DatePickerDialog(context, { _, year, month, day ->
+            onDateSelected("${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/$year")
+
+        },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    fun filterLogic()
+    {
+        try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            sdf.timeZone = TimeZone.getTimeZone("UTC")
+            val startDate = sdf.parse(startDateStr)
+            val endDate = sdf.parse(endDateStr)
+
+            if (startDate != null && endDate != null) {
+                val startMillis = startDate.time
+                val endMillis = endDate.time + (24 * 60 * 60 * 1000 - 1)
+                onFilter(startMillis.toString(), endMillis.toString())
+            }
+        } catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
+    Box(contentAlignment=Alignment.Center, modifier = Modifier.fillMaxWidth()
+    ) {
+        if (!expanded) {
+            OutlinedButton(
+                onClick= {
+                    // Expand box
+                    expanded = !expanded
+                },
+                modifier=Modifier.width(300.dp)) {
+                Text(color=customColors.TextColor,text="Click here to filter!")
+            }
+        }
+        if (expanded) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedButton(
+                        onClick = { showDatePicker { startDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(color=customColors.TextColor,text=if (startDateStr.isNotEmpty()) startDateStr else "Start Date")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    OutlinedButton(
+                        onClick = { showDatePicker { endDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(color=customColors.TextColor,text=if (endDateStr.isNotEmpty()) endDateStr else "End Date")
+                    }
+
+
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
+                    onClick = {
+                        // Filter
+                        filterLogic()
+                    },
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text(color=customColors.TextColor,text="FILTER")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun BudgetProgressList(
