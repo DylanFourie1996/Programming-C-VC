@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() {
+class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() { // (Developers et al., 2025)
 
     companion object {
         const val WEEKLY = 1
@@ -127,3 +127,9 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         return "Budget: ${budget.currency} ${budget.limit} | Saving: ${budget.currency} ${budget.save} | Left: ${budget.currency} ${budget.remainingBalance}"
     }
 }
+
+/*
+References
+Developers. 2025. ViewModel overview, 10 February 2025 [Online]. Available at: https://developer.android.com/topic/libraries/architecture/viewmodel/ [Accessed 3 May 2025].
+
+ */

@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
+class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() { // (Developers et al., 2025)
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$".toRegex()
 
 
@@ -27,6 +27,7 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                 var passwordMatches = false
 
                 if (userExists) {
+                    // (JavaDoc, 2017)
                     passwordMatches = BCrypt.checkpw(password, user!!.password)
                 }
 
@@ -96,6 +97,7 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
                 println("Register Attempt: Email=$email, Password=$password; Account will be registered?: ${!userExists}")
 
                 if (success) {
+                    //
                     val hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt())
                     val newUser = UserModel(name = name, email = email, password = hashedPassword)
                     userDao.insertUser(newUser)
@@ -134,3 +136,10 @@ class LoginRegisterViewModel(private val userDao : UserDao) : ViewModel() {
         }
     }
 }
+
+/*
+References
+JavaDoc. 2017. Class BCrypt, n.d.. [Online]. Available at: https://www.javadoc.io/doc/org.mindrot/jbcrypt/0.4/org/mindrot/jbcrypt/BCrypt.html [Accessed 3 May 2025].
+Developers. 2025. ViewModel overview, 10 February 2025 [Online]. Available at: https://developer.android.com/topic/libraries/architecture/viewmodel/ [Accessed 3 May 2025].
+
+ */

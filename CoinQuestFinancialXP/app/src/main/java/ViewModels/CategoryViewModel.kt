@@ -16,7 +16,7 @@ import org.mindrot.jbcrypt.BCrypt
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.stateIn
 
-class CategoryViewModel(private val categoryDao : CategoryDao, sessionManager: SessionManager) : ViewModel() {
+class CategoryViewModel(private val categoryDao : CategoryDao, sessionManager: SessionManager) : ViewModel() { // (Developers et al., 2025)
     init {
         /* Only on mobile storage version. */
         if (sessionManager.isLoggedIn()) {
@@ -72,3 +72,9 @@ class CategoryViewModel(private val categoryDao : CategoryDao, sessionManager: S
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList<CategoryModel>())
 
 }
+
+/*
+References
+Developers. 2025. ViewModel overview, 10 February 2025 [Online]. Available at: https://developer.android.com/topic/libraries/architecture/viewmodel/ [Accessed 3 May 2025].
+
+ */

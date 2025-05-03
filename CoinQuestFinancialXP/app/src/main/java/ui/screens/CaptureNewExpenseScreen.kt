@@ -86,6 +86,7 @@ fun CategoryDropdown(
 
 @Composable
 fun CaptureCategorySpendScreen(navController: NavHostController) {
+    // (Developer et al., 2025)
     RequestImagePermissionIfNeeded()
     val customColors = LocalCustomColors.current
     val context = LocalContext.current
@@ -211,3 +212,10 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
         Spacer(modifier=Modifier.height(16.dp))
     }
 }
+
+/*
+References
+
+Developers. 2025. Access media files from shared storage, 16 April 2025. [Online]. Available at: https://developer.android.com/training/data-storage/shared/media [Accessed 3 May 2025].
+Developers. 2025. Compose and other libraries, 16 April 2025. [Online]. Available at: https://developer.android.com/develop/ui/compose/libraries [Accessed 3 May 2025].
+ */

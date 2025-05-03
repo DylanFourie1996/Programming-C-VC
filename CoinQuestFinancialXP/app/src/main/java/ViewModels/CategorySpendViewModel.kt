@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class CategorySpendViewModel(
     private val categorySpendDao: CategorySpendDao,
     private val budgetDao: BudgetDao
-) : ViewModel() {
+) : ViewModel() { // (Developers et al., 2025)
     fun getCategorySendPairs(userId : Int, budgetId : Int) : Flow<List<CategorySpendPair>>
     {
         return categorySpendDao.getCategorySpendPairs(userId, budgetId)
@@ -108,3 +108,9 @@ class CategorySpendViewModel(
         }
     }
 }
+
+/*
+References
+Developers. 2025. ViewModel overview, 10 February 2025 [Online]. Available at: https://developer.android.com/topic/libraries/architecture/viewmodel/ [Accessed 3 May 2025].
+
+ */
