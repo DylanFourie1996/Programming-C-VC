@@ -36,4 +36,6 @@ interface CategorySpendDao {
         WHERE c.userId = :userId OR c.userId IS NULL
     """)
     fun getCategorySpendPairs(userId: Int, budgetId: Int): Flow<List<CategorySpendPair>>
+
+
 }

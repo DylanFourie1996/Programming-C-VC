@@ -4,6 +4,7 @@ import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -52,12 +53,12 @@ fun LoginScreen(navController: NavController, routeEmail : String? = null, onLog
     var password by remember {mutableStateOf("")}
     Column(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize().background(customColors.page),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(modifier=Modifier.fillMaxWidth().padding(bottom=50.dp), contentAlignment=Alignment.Center) {
-            Text("Login")
+            Text(color=customColors.TextColor, text="Login")
         }
         Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement= Arrangement.Center) {
             Image(

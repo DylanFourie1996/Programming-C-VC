@@ -3,6 +3,7 @@ package ui.screens
 import ViewModels.Factories.LoginRegisterViewModelFactory
 import ViewModels.LoginRegisterViewModel
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -69,6 +70,7 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(customColors.page)
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -77,7 +79,7 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text("Register")
+            Text(color=customColors.TextColor, text="Register")
         }
         Column(
             modifier = Modifier.fillMaxWidth().weight(1.0f).padding(start=16.dp, end=16.dp, top=32.dp),
@@ -86,7 +88,7 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Column() {
-                Text("Enter your full name", fontSize=labelFontSize)
+                Text(color=customColors.TextColor, text="Enter your full name", fontSize=labelFontSize)
                 Spacer(modifier = Modifier.height(16.dp))
                 StandardTextBox(
                     value = name,
@@ -99,7 +101,7 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
             }
             Spacer(modifier = Modifier.height(16.dp))
             Column() {
-                Text("Enter your email", fontSize=labelFontSize)
+                Text(color=customColors.TextColor, text="Enter your email", fontSize=labelFontSize)
                 Spacer(modifier = Modifier.height(16.dp))
                 StandardTextBox(
                     value = email,
@@ -113,7 +115,7 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
 
             Spacer(modifier = Modifier.height(16.dp))
             Column() {
-                Text("Enter your password", fontSize=labelFontSize)
+                Text(color=customColors.TextColor, text="Enter your password", fontSize=labelFontSize)
                 Spacer(modifier = Modifier.height(16.dp))
                 StandardTextBox(
                     value = password,
@@ -179,11 +181,11 @@ fun RegisterScreen(navController: NavController, onRegisterSuccess: (String) -> 
             Spacer(modifier = Modifier.height(16.dp))
             Spacer(modifier = Modifier.height(16.dp))
             Row() {
-                Text("Already have an account? ",
+                Text(text="Already have an account? ",
                     fontSize=10.sp,
                     color=customColors.hyperlinkInactive)
                 Text(
-                    "Login",
+                    text="Login",
                     fontSize = if (!isPressed) 10.sp else 9.sp,
                     color = if (!isPressed) customColors.hyperlinkDefault else customColors.hyperlinkHover,
                     modifier = Modifier.clickable(
