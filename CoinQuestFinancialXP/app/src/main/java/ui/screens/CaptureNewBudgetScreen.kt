@@ -13,6 +13,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -47,6 +48,9 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
         )
     )
 
+    var showSaveError by remember {mutableStateOf(false)}
+    var showLimitError by remember {mutableStateOf(false)}
+
     // State variables
     var limit by remember { mutableStateOf("") }
     var save by remember { mutableStateOf("") }
@@ -78,6 +82,10 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
             label = { Text(color=customColors.TextColor,text="Budget Limit (R)") },
             modifier = Modifier.fillMaxWidth()
         )
+        if (showLimitError)
+        {
+            Text("Please enter a valid limit.", color= MaterialTheme.colorScheme.error, modifier=Modifier.padding(vertical=8.dp))
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -88,6 +96,10 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
             label = { Text(color=customColors.TextColor,text="Savings (R)") },
             modifier = Modifier.fillMaxWidth()
         )
+        if (showSaveError)
+        {
+            Text("Please enter a valid save.", color= MaterialTheme.colorScheme.error, modifier=Modifier.padding(vertical=8.dp))
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -128,6 +140,15 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
         // Save button
         Button(
             onClick = {
+                showLimitError = false
+                showSaveError = false
+                if (limit.isEmpty() || save.isEmpty()) {
+                    if (limit.isEmpty()) showLimitError = true
+                    if (save.isEmpty()) showSaveError = true
+
+                    return@Button
+                } // Don't allow saving of budget if incorrect validation
+
                 val limitFloat = limit.toFloatOrNull() ?: 0f
                 val saveFloat = save.toFloatOrNull() ?: 0f
 
