@@ -27,6 +27,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquest.viewmodel.CategorySpendViewModel
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ fun CategoryDropdown(
     selectedCategory: String?,
     onCategorySelected: (CategoryModel) -> Unit
 ) {
+    val customColors = LocalCustomColors.current
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -51,7 +53,7 @@ fun CategoryDropdown(
         TextField(
             value = selectedCategory ?: "",
             onValueChange = {},
-            label = { Text("Category") },
+            label = { Text(color=customColors.TextColor,text="Category") },
             readOnly = true,
             trailingIcon = {
                 Icon(
@@ -70,7 +72,7 @@ fun CategoryDropdown(
         ) {
             categories.forEach { category : CategoryModel ->
                 DropdownMenuItem(
-                    text = { Text(category.title) },
+                    text = { Text(color=customColors.TextColor,text=category.title) },
                     onClick = {
                         onCategorySelected(category)
                         expanded = false
@@ -83,6 +85,7 @@ fun CategoryDropdown(
 
 @Composable
 fun CaptureCategorySpendScreen(navController: NavHostController) {
+    val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }
     val currentUserId = sessionHandler.getUserId()
@@ -155,7 +158,7 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.height(32.dp))
 
         // Display selected image URI
-        Text("Selected Image URI: $photoUri", fontSize = 12.sp)
+        Text(color=customColors.TextColor,text="Selected Image URI: $photoUri", fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
 

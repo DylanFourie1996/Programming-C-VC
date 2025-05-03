@@ -10,9 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
 @Composable
 fun StatsScreen(navController: NavHostController) {
+    val customColors = LocalCustomColors.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -21,7 +23,7 @@ fun StatsScreen(navController: NavHostController) {
         Text(
             text = "Coming Soon in Part 3",
             modifier = Modifier.padding(bottom = 8.dp),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = customColors.TextColor,
             style = MaterialTheme.typography.titleLarge
         )
     }

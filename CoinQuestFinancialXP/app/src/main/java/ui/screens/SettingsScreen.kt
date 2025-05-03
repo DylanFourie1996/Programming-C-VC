@@ -42,7 +42,7 @@ fun SettingsScreen(navController: NavHostController, isDarkTheme : Boolean, onTo
             verticalArrangement = Arrangement.Center
         ) {
             Box(modifier=Modifier.fillMaxWidth(), contentAlignment=Alignment.Center) {
-                Text(text = "Settings")
+                Text(color=customColors.TextColor,text = "Settings")
             }
             Spacer(modifier = Modifier.height(64.dp))
             Column(modifier = Modifier.fillMaxWidth().weight(1.0f)) {
@@ -58,7 +58,7 @@ fun SettingsScreen(navController: NavHostController, isDarkTheme : Boolean, onTo
                 }
             }
             Box(modifier=Modifier.fillMaxWidth(), contentAlignment=Alignment.Center) {
-                Text(text="Version 1.0")
+                Text(color=customColors.TextColor,text="Version 1.0")
             }
         }
     }
