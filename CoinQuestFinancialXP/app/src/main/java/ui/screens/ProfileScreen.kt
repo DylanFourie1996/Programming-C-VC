@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -70,10 +71,11 @@ fun ProfileScreen(navController: NavHostController) {
             verticalArrangement = Arrangement.Center
         ) {
             Box() {
-                Text(text = "Profile Screen")
+                Text(color=customColors.TextColor,text = "Profile Screen")
             }
             Spacer(modifier = Modifier.height(32.dp))
-            Image(painter=painterResource(R.drawable.profileicon), contentDescription=null, modifier=Modifier.size(48.dp))
+            Image(colorFilter = ColorFilter.tint(customColors.TextColor),
+                painter=painterResource(R.drawable.profileicon), contentDescription=null, modifier=Modifier.size(48.dp))
             Spacer(modifier=Modifier.height(16.dp))
             /*LinearProgressIndicator(
                 progress = 0.5f,
@@ -84,7 +86,7 @@ fun ProfileScreen(navController: NavHostController) {
             )*/
             Box(modifier=Modifier.fillMaxWidth()) {
                 Column(horizontalAlignment=Alignment.CenterHorizontally, modifier=Modifier.align(Alignment.Center)) {
-                    Text("2/6", fontSize = 12.sp)
+                    Text(color=customColors.TextColor,text="2/6", fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
                         progress = 0.33f,
@@ -113,9 +115,9 @@ fun ProfileScreen(navController: NavHostController) {
             Spacer(modifier=Modifier.height(32.dp))
             Column(modifier=Modifier.fillMaxWidth(), horizontalAlignment=Alignment.CenterHorizontally) {
                 Divider(color=customColors.DividerColor1)
-                Text(username, modifier=Modifier.padding(vertical=16.dp), fontSize=12.sp)
+                Text(color=customColors.TextColor,text=username, modifier=Modifier.padding(vertical=16.dp), fontSize=12.sp)
                 Divider(color=customColors.DividerColor2)
-                Text(email, modifier=Modifier.padding(vertical=16.dp), fontSize=12.sp)
+                Text(color=customColors.TextColor,text=email, modifier=Modifier.padding(vertical=16.dp), fontSize=12.sp)
                 Divider(color=customColors.DividerColor2)
             }
             Spacer(modifier=Modifier.height(64.dp))
@@ -143,8 +145,8 @@ fun ProfileScreen(navController: NavHostController) {
         AlertDialog(
             modifier=Modifier.padding(vertical=16.dp),
             onDismissRequest = {showDeleteDialog.value = false},
-            title = {Text("Delete Account")},
-            text = {Text("Are you sure you want to delete your account? This action cannot be undone.")},
+            title = {Text(color=customColors.TextColor,text="Delete Account")},
+            text = {Text(color=customColors.TextColor,text="Are you sure you want to delete your account? This action cannot be undone.")},
             buttons = {
                 Column(modifier=Modifier.fillMaxWidth().padding(16.dp)) {
                     StandardButton(

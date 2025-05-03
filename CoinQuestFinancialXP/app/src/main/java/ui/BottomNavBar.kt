@@ -16,8 +16,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -48,9 +50,8 @@ fun BottomNavBar(navController: NavController) {
     val items = listOf(
         BottomNavItem(Screen.Home.route, Screen.Home.title, Icons.Filled.Home),
         BottomNavItem(Screen.CategorySpendScreen.route, Screen.CategorySpendScreen.title, Icons.Filled.Menu),
-        BottomNavItem(Screen.StatsScreen.route, Screen.StatsScreen.title, Icons.Filled.Settings),
+        BottomNavItem(Screen.StatsScreen.route, Screen.StatsScreen.title, Icons.Filled.Share),
         BottomNavItem(Screen.Settings.route, Screen.Settings.title, Icons.Filled.Settings),
-        BottomNavItem(Screen.AchievementScreen.route, Screen.AchievementScreen.title, Icons.Filled.Lock),
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -62,7 +63,7 @@ fun BottomNavBar(navController: NavController) {
 
     Surface(modifier=Modifier.fillMaxWidth().padding(start=24.dp, end=24.dp, top=0.dp, bottom=24.dp),
         shape=RoundedCornerShape(100.dp),
-        color=Color.White,
+        color=customColors.NavBarColor,
         shadowElevation=1.dp) {
         Row(modifier=Modifier.fillMaxWidth().padding(vertical=12.dp),
             horizontalArrangement=Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
@@ -82,12 +83,8 @@ fun BottomNavBar(navController: NavController) {
                                 }
                             }
                             .background(
-                                if (selected) Color(
-                                    1.0f,
-                                    1.0f,
-                                    1.0f,
-                                    1f
-                                ) else Color.Transparent
+                                if (selected) customColors.NavBarColor
+                                 else Color.Transparent
                             )
                             .padding(end = unselectedPadding)//if (selected) selectedPadding else unselectedPadding),
 

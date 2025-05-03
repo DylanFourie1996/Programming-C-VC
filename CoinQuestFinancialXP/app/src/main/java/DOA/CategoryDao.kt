@@ -26,17 +26,6 @@ interface CategoryDao {
     @Query("SELECT title FROM category WHERE userId=:userId AND premade = 1")
     suspend fun getPremadeCategoryIds(userId: Int): List<String>
 
-
-    @Query("SELECT * FROM categoryspend WHERE budgetId = :budgetId")
-    suspend fun getSpendsForBudget(budgetId: Int): List<CategorySpendModel>
-
-    @Update
-    suspend fun updateCategorySpend(entry: CategorySpendModel)
-
-
-    @Query("DELETE FROM categoryspend WHERE id = :id")
-    suspend fun deleteCategorySpendById(id: Int)
-
     @Delete
     suspend fun deleteCategory(category: CategoryModel)
 

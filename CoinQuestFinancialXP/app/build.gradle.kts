@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
@@ -58,6 +59,11 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation("androidx.room:room-runtime:2.6.1")
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
     kapt("androidx.room:room-compiler:2.6.1") // Add this line
 
     implementation("androidx.compose.runtime:runtime:1.6.0") // Adjust to your Compose version
@@ -72,5 +78,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.5") // Compose Navigation
     implementation("androidx.compose.material:material:1.5.1")    // Material Components
     implementation("androidx.compose.ui:ui:1.5.1")
+    testImplementation(kotlin("test"))
 
 }

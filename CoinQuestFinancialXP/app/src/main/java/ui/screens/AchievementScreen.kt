@@ -114,7 +114,7 @@ fun AchievementScreen(navController: NavHostController) {
                 windowInsets=WindowInsets(0.dp),
                 modifier=Modifier.padding(0.dp),
                 title = {
-                    Text(
+                    Text(color=customColors.TextColor,
                         text = "Achievements",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
@@ -149,7 +149,7 @@ fun AchievementScreen(navController: NavHostController) {
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                Text(
+                Text(color=customColors.TextColor,
                     text = "Collect them all!",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(bottom = 16.dp).align(Alignment.CenterHorizontally),
@@ -185,7 +185,7 @@ fun AchievementScreen(navController: NavHostController) {
 @Composable
 fun AchievementCard(achievement: Achievement, mod : Modifier) {
     var expanded by remember { mutableStateOf(false) }
-
+    val customColors = LocalCustomColors.current
     Card(
         modifier = (if (!expanded) mod.aspectRatio(0.8f)
             .wrapContentHeight() else mod.wrapContentHeight()).clickable{
@@ -250,11 +250,11 @@ fun AchievementCard(achievement: Achievement, mod : Modifier) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = if (achievement.isUnlocked)
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    customColors.TextColor
                 else
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    customColors.TextColor.copy(alpha = 0.7f)
             )
-
+            
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
@@ -262,9 +262,9 @@ fun AchievementCard(achievement: Achievement, mod : Modifier) {
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 color = if (achievement.isUnlocked)
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                    customColors.TextColor
                 else
-                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    customColors.TextColor.copy(alpha = 0.5f)
             )
         }
     }

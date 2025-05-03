@@ -45,7 +45,6 @@ class CategorySpendOnlyViewModel(
         }
     }
 
-
     fun updateEntry(entry: CategorySpendModel, onDone: () -> Unit = {}) {
         viewModelScope.launch {
             try {

@@ -10,7 +10,7 @@ object Screen {
     val Register = ScreenItem("register", "Register")
     val CategorySpendScreen = ScreenItem(
         route = "CategorySpendScreen?budgetId={budgetId}",
-        title = "Expenses"
+        title = "Expense"
     )
     val CaptureNewBudget = ScreenItem("CaptureNewBudget", "New Budget Entry")
     val CategoryCreation = ScreenItem("CategoryCreation", "Categories")

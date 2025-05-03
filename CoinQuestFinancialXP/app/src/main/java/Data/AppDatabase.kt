@@ -7,6 +7,7 @@ import DOA.CategorySpendOnlyDao
 import Model.*
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     entities = [
@@ -16,9 +17,10 @@ import androidx.room.RoomDatabase
         CategorySpendModel::class,
         AchievementModel::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun budgetDao(): BudgetDao

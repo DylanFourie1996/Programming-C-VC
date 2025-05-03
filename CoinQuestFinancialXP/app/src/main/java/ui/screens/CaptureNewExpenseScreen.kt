@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
@@ -20,14 +22,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquest.viewmodel.CategorySpendViewModel
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ui.CustomComposables.StandardButton
+import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
+import ui.RequestImagePermissionIfNeeded
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +44,7 @@ fun CategoryDropdown(
     selectedCategory: String?,
     onCategorySelected: (CategoryModel) -> Unit
 ) {
+    val customColors = LocalCustomColors.current
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
@@ -45,7 +54,7 @@ fun CategoryDropdown(
         TextField(
             value = selectedCategory ?: "",
             onValueChange = {},
-            label = { Text("Category") },
+            label = { Text(color=customColors.TextColor,text="Category") },
             readOnly = true,
             trailingIcon = {
                 Icon(
@@ -64,7 +73,7 @@ fun CategoryDropdown(
         ) {
             categories.forEach { category : CategoryModel ->
                 DropdownMenuItem(
-                    text = { Text(category.title) },
+                    text = { Text(color=customColors.TextColor,text=category.title) },
                     onClick = {
                         onCategorySelected(category)
                         expanded = false
@@ -77,6 +86,8 @@ fun CategoryDropdown(
 
 @Composable
 fun CaptureCategorySpendScreen(navController: NavHostController) {
+    RequestImagePermissionIfNeeded()
+    val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }
     val currentUserId = sessionHandler.getUserId()
@@ -101,13 +112,13 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
         photoUri = uri?.toString() ?: ""
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(vertical=16.dp).padding(horizontal=32.dp).verticalScroll(rememberScrollState())) {
         // Display user details if logged in
-        if (currentUserId != -1 && currentUserEmail != null) {
+        /*if (currentUserId != -1 && currentUserEmail != null) {
             Text("Logged in as: $currentUserEmail (ID: $currentUserId)")
         } else {
             Text("User not logged in")
-        }
+        }*/
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -118,7 +129,7 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             onCategorySelected = { selectedCategory = it }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Spend input field
         StandardTextBox(
@@ -129,6 +140,9 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(8.dp))
+
+
         // Spend input field
         StandardTextBox(
             value = spend,
@@ -138,30 +152,31 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Upload Image button
-        Button(onClick = { imageLauncher.launch("image/*") }) {
-            Text("Upload Image")
-        }
+        StandardButton(text="Upload Image", onClick = { imageLauncher.launch("image/*") }, modifier=Modifier.padding(horizontal=32.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Display selected image URI
-        Text("Selected Image URI: $photoUri")
+        Text(color=customColors.TextColor,text="Selected Image URI: $photoUri", fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Save Spend button
-        Button(
+        StandardButton(
+            themeType= StandardButtonTheme.ORANGEGRAND,
+            text = "ADD",
             onClick = {
                 // Basic validation
                 val spendValue = spend.toFloatOrNull()
-                val categoryIndex = categories.indexOf(selectedCategory)
+                val categoryIndex = selectedCategory?.id ?: 1
+
 
                 if (selectedCategory == null || spendValue == null || categoryIndex == -1 || currentUserId == -1) {
                     Toast.makeText(context, "Please enter valid spend and select a category.", Toast.LENGTH_SHORT).show()
-                    return@Button
+                    return@StandardButton
                 }
 
                 // Create CategorySpendModel
@@ -170,6 +185,7 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
                     ItemName = spendTitle,
                     category = categoryIndex,
                     spend = spendValue,
+                    creationDate = Date(),
                     photoUri = photoUri
                 )
 
@@ -189,9 +205,9 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
                     }
                 }
             },
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Text("Save Spend")
-        }
+            modifier = Modifier.align(Alignment.CenterHorizontally).padding(horizontal=32.dp)
+        )
+
+        Spacer(modifier=Modifier.height(16.dp))
     }
 }

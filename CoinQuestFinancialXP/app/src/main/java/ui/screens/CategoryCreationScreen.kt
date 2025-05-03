@@ -66,16 +66,18 @@ fun CategoryCreation(navController : NavController) {
     val sessionManager = SessionManager.getInstance(LocalContext.current)
 
     val customColors = LocalCustomColors.current
-    Scaffold(topBar =  {
-        Column(modifier=Modifier.fillMaxWidth().padding(top=32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Categories")
+    Scaffold(
+        backgroundColor=customColors.page,
+        topBar =  {
+        Column(modifier=Modifier.fillMaxWidth().padding(top=32.dp).background(customColors.page), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(color=customColors.TextColor,text="Categories")
             Divider(modifier=Modifier.padding(top=32.dp, bottom=0.dp), color=customColors.DividerColor1)
         }
 
     }
 
     ) { paddingParameter ->
-        LazyColumn(modifier= Modifier.padding(paddingParameter), contentPadding= PaddingValues(bottom=32.dp)) {
+        LazyColumn(modifier= Modifier.padding(paddingParameter).background(customColors.page), contentPadding= PaddingValues(bottom=32.dp)) {
 
             items(categories) { category : CategoryModel ->
                 Spacer(modifier=Modifier.height(12.dp))
@@ -95,15 +97,16 @@ fun CategoryCreation(navController : NavController) {
     if (showAddCategory.value)
     {
         AlertDialog(
+            backgroundColor=customColors.page,
             modifier=Modifier.padding(vertical=16.dp),
             shape = RoundedCornerShape(15.dp),
             onDismissRequest = {
                 showAddCategory.value = false
             },
-            title={Text("New Category")},
+            title={},
             text={
                 Column(modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)) {
-                    Text("Create a new category")
+                    Text(color=customColors.TextColor,text="Create a new category")
                     Spacer(modifier = Modifier.height(32.dp))
                     StandardTextBox(
                         modifier = Modifier.fillMaxWidth(),
@@ -146,6 +149,7 @@ fun Tag(categoryViewModel : CategoryViewModel, category : CategoryModel)
             Surface(
                 modifier = Modifier.weight(1.0f).padding(vertical = 12.dp),
                 elevation = 8.dp,
+                color=customColors.PadColor,
                 shape = if (!isPremade) RoundedCornerShape(
                     topStart = 100.dp,
                     bottomStart = 100.dp
@@ -156,7 +160,7 @@ fun Tag(categoryViewModel : CategoryViewModel, category : CategoryModel)
                     contentAlignment = Alignment.Center
                 )
                 {
-                    Text(category.title)
+                    Text(color=customColors.TextColor,text=category.title)
                 }
             }
             if (!isPremade) {

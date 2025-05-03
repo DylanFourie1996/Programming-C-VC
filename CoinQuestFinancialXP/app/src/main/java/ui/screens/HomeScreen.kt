@@ -1,8 +1,16 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import DOA.CategorySpendPair
+import Model.BudgetModel
+import Model.CategoryModel
+import Model.CategorySpendModel
+import Screens.ExpenseEntryRow
 import Utils.SessionManager
+import ViewModels.BudgetViewModel
 import ViewModels.CaptureNewBudgetViewModel
+import ViewModels.Factories.BudgetViewModelFactory
 import ViewModels.Factories.CaptureNewBudgetViewModelFactory
+import ViewModels.Factories.CategorySpendViewModelFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -15,25 +23,35 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +63,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.coinquest.data.DatabaseProvider
+import com.example.coinquest.viewmodel.CategorySpendViewModel
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.launch
+import kotlin.collections.getValue
+import kotlin.collections.ifEmpty
+import kotlin.collections.setValue
 
 
 @Preview(showBackground = true)
@@ -61,6 +88,85 @@ fun HomeScreenPreview() {
 fun HomeScreen(navController: NavHostController) {
     val expandedFab = remember { mutableStateOf(false) }
     val customColors = LocalCustomColors.current
+
+    var budgetIsCreated by remember { mutableStateOf(false) }
+
+    val spendPairs = remember {mutableStateListOf<CategorySpendPair>()}
+
+
+    // Initialize ViewModel for BudgetViewModel
+    var categorySpendViewModel : CategorySpendViewModel = viewModel(factory = CategorySpendViewModelFactory(
+        DatabaseProvider.getDatabase(LocalContext.current).categorySpendDao(),
+        DatabaseProvider.getDatabase(LocalContext.current).budgetDao()
+    ))
+
+    // Initialize ViewModel for BudgetViewModel
+    var budgetViewModel : BudgetViewModel = viewModel(factory = BudgetViewModelFactory(
+        LocalContext.current
+    ))
+
+    var budget by remember {mutableStateOf<BudgetModel?>(null)}
+
+    val sessionManager = SessionManager.getInstance(LocalContext.current)
+
+
+        // Check that budget has been created
+    LaunchedEffect(Unit) {
+        budgetViewModel.allBudgets.collect {budgetList ->
+            budgetIsCreated = budgetList.isNotEmpty()
+
+
+
+            if (budgetIsCreated) {
+                println("Budgets found!")
+                categorySpendViewModel.getBudgetById(1) { res ->
+                    if (res != null) {
+                        // Use the budget object here
+                        budget = res
+                        println("Budget id: ${res.id}")
+                    }
+                    else
+                    {
+                        println("Budget does not exist ;(")
+                    }
+                }
+
+                categorySpendViewModel.getCategorySendPairs(
+                    userId = sessionManager.getUserId(),
+                    budgetId=1
+                ).collect {pairs ->
+                    spendPairs.clear()
+                    spendPairs.addAll(pairs)
+                }
+
+
+                /*
+                categorySpendViewModel.getCategoriesForUser(sessionManager.getUserId()).collect() { categories ->
+                    val spends = categories.map{ cat->
+                        async {
+                            val spend = categorySpendViewModel.getSpendForCategory(cat.id)
+                            cat to spend
+                        }
+                    }.awaitAll()
+
+                    categorySpendList.clear()
+
+                    spends.forEach {(cat, spend) ->
+                        categorySpendList[cat] = spend
+                    }
+
+                }
+                 */
+
+
+                    //lst.forEach {}
+                    //categorySpendList = lst
+            }
+        }
+
+
+    }
+
     BackHandler {  }
     Scaffold(
         containerColor=customColors.page,
@@ -68,6 +174,7 @@ fun HomeScreen(navController: NavHostController) {
         },
         floatingActionButton = {
             Box(
+
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
@@ -92,12 +199,12 @@ fun HomeScreen(navController: NavHostController) {
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.End
                             ) {
-                                Surface(
+                                /*Surface(
                                     color = MaterialTheme.colorScheme.primaryContainer,
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Create Budget",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
@@ -106,6 +213,7 @@ fun HomeScreen(navController: NavHostController) {
                                         color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
+
 
                                 SmallFloatingActionButton(
                                     onClick = {
@@ -120,6 +228,7 @@ fun HomeScreen(navController: NavHostController) {
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
+                                 */
                             }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -130,25 +239,27 @@ fun HomeScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Insert Expense",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
                                             vertical = 6.dp
                                         ),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                                 SmallFloatingActionButton(
                                     onClick = {
+                                        if (!budgetIsCreated) { return@SmallFloatingActionButton }
                                         navController.navigate(Screen.CaptureCategorySpendScreen.route)
                                         expandedFab.value = false
                                     },
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                    modifier=Modifier.alpha(if (budgetIsCreated) 1.0f else 0.5f),
+                                    containerColor = if (budgetIsCreated) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.secondary
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = "Insert Expense",
+
                                         tint = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
@@ -162,13 +273,12 @@ fun HomeScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Add Category",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
                                             vertical = 6.dp
                                         ),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                                 SmallFloatingActionButton(
@@ -191,7 +301,7 @@ fun HomeScreen(navController: NavHostController) {
                     // Main FAB
                     FloatingActionButton(
                         onClick = { expandedFab.value = !expandedFab.value },
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = customColors.InColor,
                     ) {
                         Icon(
                             imageVector = if (expandedFab.value) Icons.Default.Close else Icons.Default.Add,
@@ -207,61 +317,134 @@ fun HomeScreen(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal=16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Summary Card
-            FinancialSummaryCard()
+            Column(horizontalAlignment=Alignment.CenterHorizontally) {
+                // Summary Card
+                FinancialSummaryCard(navController)
+
+                if (budgetIsCreated)
+                {
+                    Button(colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
+                        onClick = {
+                        // Navigate to create budget screen
+                        navController.navigate(Screen.CaptureNewBudget.route)
+                    }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Create")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(color=customColors.TextColor,text="Update Budget")
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             // Recent Transactions Section
-            Text(
+            /*Text(color=customColors.TextColor,
                 text = "Recent Transactions",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Start)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))*/
 
 //            RecentTransactionsList()
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Budget Progress Section
-            Text(
-                text = "Budget Progress",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Start)
-            )
+            if (budget != null) {
+                Column(horizontalAlignment=Alignment.CenterHorizontally, modifier=Modifier.fillMaxWidth()) {
+                    // Budget Progress Section
+                    Text(color=customColors.TextColor,
+                        text = "Budget Progress",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Divider(modifier=Modifier.width(50.dp).padding(vertical=16.dp))
 
-//            BudgetProgressList()
+
+                    BudgetProgressList(spendPairs, budget)
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
+                colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
                 onClick = { navController.navigate(Screen.CategorySpendScreen.route) }, //Should Move it to Expense List
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Go To Expense List")
+                Text(color=customColors.TextColor,text = "Go To Expense List")
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
+            }
+
+            Spacer(modifier=Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+fun BudgetProgressList(
+    spendList : List<CategorySpendPair>,
+    budget : BudgetModel?
+)
+{
+
+
+    val customColors = LocalCustomColors.current
+    val toSpend = budget?.let { it.limit-it.save } ?: return
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)) {
+       spendList.forEach { entry ->
+           val cat = entry.category
+           val amount = entry.spend ?: 0f
+            Surface(
+                shadowElevation=3.dp,
+                shape= RoundedCornerShape(15.dp),
+                modifier=Modifier.fillMaxWidth(),
+                color=customColors.PadColor
+
+            ) {
+                Column(modifier=Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment=Alignment.CenterHorizontally) {
+                    Text(color=customColors.TextColor,text=cat.title)
+                    Spacer(modifier=Modifier.height(4.dp))
+                    Divider()
+                    Spacer(modifier=Modifier.height(16.dp))
+                    Text(color=customColors.TextColor,text="R${amount}/R${toSpend}")
+                    Spacer(modifier=Modifier.height(16.dp))
+                    Text(color=customColors.TextColor,text="%${amount/toSpend*100} of budget")
+                }
             }
         }
     }
 }
 
 @Composable
-fun FinancialSummaryCard() {
+fun FinancialSummaryCard(navController : NavController) {
     // Getting the context and session handler
+    val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }
     val currentUserId = sessionHandler.getUserId()
+
+    var budgetIsCreated by remember { mutableStateOf(false) }
+
+    // Initialize ViewModel for BudgetViewModel
+    var budgetViewModel : BudgetViewModel = viewModel(factory = BudgetViewModelFactory(
+        context
+    ))
+
+    // Check that budget has been created
+    LaunchedEffect(Unit) {
+        budgetViewModel.allBudgets.collect {budgetList ->
+            budgetIsCreated = budgetList.isNotEmpty()
+        }
+    }
+
 
     // Initialize ViewModel and load budget info
     val viewModel: CaptureNewBudgetViewModel = viewModel(
@@ -286,7 +469,7 @@ fun FinancialSummaryCard() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shape = RoundedCornerShape(15.dp),
             shadowElevation = 3.dp
         ) {
@@ -295,9 +478,9 @@ fun FinancialSummaryCard() {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "Total Balance", fontSize = 16.sp, color = Color.Gray)
+                Text(color=customColors.TextColor,text = "Total Balance", fontSize = 16.sp)
 
-                Text(
+                Text(color=customColors.TextColor,
                     text = "R${"%.2f".format(totalBalance)}",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
@@ -321,7 +504,7 @@ fun FinancialSummaryCard() {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shape = RoundedCornerShape(15.dp),
             shadowElevation = 3.dp
         ) {
@@ -332,19 +515,21 @@ fun FinancialSummaryCard() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
+                Text(color=customColors.TextColor,
                     text = "No budget information available",
                     fontSize = 16.sp,
-                    color = Color.Gray,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 
-                Button(onClick = {
-                    // Navigate to create budget screen
-                }) {
-                    Icon(Icons.Default.Add, contentDescription = "Create")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Create Budget")
+                if (!budgetIsCreated) {
+                    Button(onClick = {
+                        // Navigate to create budget screen
+                        navController.navigate(Screen.CaptureNewBudget.route)
+                    }) {
+                        Icon(Icons.Default.Add, contentDescription = "Create")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(color=customColors.TextColor,text="Create Budget")
+                    }
                 }
             }
         }
@@ -368,6 +553,7 @@ fun FinancialSummaryCard() {
 
     @Composable
     fun TransactionItem(title: String, amount: String) {
+        val customColors = LocalCustomColors.current
         val isPositive = amount.startsWith("+")
 
         Surface(
@@ -375,7 +561,7 @@ fun FinancialSummaryCard() {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             shape = RoundedCornerShape(100.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shadowElevation = 3.dp
         ) {
             Row(
@@ -385,7 +571,7 @@ fun FinancialSummaryCard() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = title)
+                Text(color=customColors.TextColor,text = title)
                 Text(
                     text = amount,
                     color = if (isPositive) Color(0xFF4CAF50) else Color(0xFFE57373),
@@ -429,12 +615,14 @@ fun FinancialSummaryCard() {
 
     @Composable
     fun BudgetProgressItem(
+
         category: String,
         amountSpent: Float,
         totalBudget: Float,
         onCreateBudgetClick: () -> Unit = {},
         onExpenseListClick: () -> Unit = {}
     ) {
+        val customColors = LocalCustomColors.current
         val progress = (amountSpent / totalBudget).coerceIn(0f, 1f)
         val isOverBudget = amountSpent > totalBudget
 
@@ -444,7 +632,7 @@ fun FinancialSummaryCard() {
             modifier = Modifier
                 .fillMaxWidth(),
             //.animateContentSize(), // Add animation for smooth transition
-            color = Color.White,
+            color = customColors.PadColor,
             shadowElevation = 3.dp,
             shape = RoundedCornerShape(15.dp),
         ) {
@@ -458,7 +646,7 @@ fun FinancialSummaryCard() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = category)
+                    Text(color=customColors.TextColor,text = category)
                     Text(
                         text = "R${amountSpent} / R${totalBudget}",
                         color = if (isOverBudget) Color(0xFFE57373) else Color.Gray
@@ -505,7 +693,7 @@ fun FinancialSummaryCard() {
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Create Budget")
+                            Text(color=customColors.TextColor,text="Create Budget")
                         }
 
                         Button(
@@ -524,7 +712,7 @@ fun FinancialSummaryCard() {
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Expense List")
+                            Text(color=customColors.TextColor,text="Expense List")
                         }
                     }
                 }
@@ -535,11 +723,11 @@ fun FinancialSummaryCard() {
 
 @Composable
 fun FinancialMetric(label: String, value: String, positive: Boolean) {
+    val customColors = LocalCustomColors.current
     Column {
-        Text(
+        Text(color=customColors.TextColor,
             text = label,
             fontSize = 14.sp,
-            color = Color.Gray
         )
         Text(
             text = value,

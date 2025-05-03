@@ -26,4 +26,5 @@ interface CategorySpendOnlyDao {
 
     @Delete
     suspend fun deleteEntry(entry: CategorySpendModel)
+
 }

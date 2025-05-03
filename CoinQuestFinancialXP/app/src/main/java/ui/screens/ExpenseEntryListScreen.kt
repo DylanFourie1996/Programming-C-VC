@@ -6,8 +6,10 @@ import Utils.SessionManager
 import ViewModels.CategoryViewModel
 import ViewModels.Factories.CategorySpendOnlyViewModelFactory
 import ViewModels.Factories.CategoryViewModelFactory
+import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -17,6 +19,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -37,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.io.File
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
@@ -47,13 +50,18 @@ import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
+import ui.RequestImagePermissionIfNeeded
 import ui.screens.CategoryDropdown
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun CategorySpendScreen(navController: NavController) {
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
     val userId = sessionManager.getUserId()
+    val customColors = LocalCustomColors.current
 
     val viewModel: CategorySpendOnlyViewModel = viewModel(
         factory = CategorySpendOnlyViewModelFactory(
@@ -67,6 +75,7 @@ fun CategorySpendScreen(navController: NavController) {
     )
 
     var entries by remember { mutableStateOf<List<CategorySpendModel>>(emptyList()) }
+    var selectedEntries by remember { mutableStateOf<List<CategorySpendModel>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     var selectedEntryId by remember { mutableStateOf<Int?>(null) }
@@ -81,7 +90,7 @@ fun CategorySpendScreen(navController: NavController) {
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal=16.dp).padding(top=16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(pageTitle, style = MaterialTheme.typography.headlineMedium)
+        Text(color=customColors.TextColor,text=pageTitle, style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier=Modifier.height(8.dp))
         Divider(modifier=Modifier.width(350.dp))
         if (!removeSpace)
@@ -92,16 +101,20 @@ fun CategorySpendScreen(navController: NavController) {
                 CircularProgressIndicator()
             }
         } else if (error != null) {
-            Text("Error: $error", color = MaterialTheme.colorScheme.error)
+            Text(text="Error: $error", color = MaterialTheme.colorScheme.error)
         } else if (entries.isEmpty()) {
-            Text("No expense entries found.")
+            Text(color=customColors.TextColor,text="No expense entries found.")
         } else {
             if (selectedEntryId == null) {
                 removeSpace = false
                 pageTitle = "Expenses"
+                // Show User Selectable Date
+                UserSelectableDate(entries=entries) { filtered ->
+                    selectedEntries = filtered
+                }
                 // Show the list of entries
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(entries, key = { it.id }) { entry ->
+                    items(selectedEntries.ifEmpty {entries}, key = { it.id }) { entry ->
                         ExpenseEntryRow(
                             categoryViewModel=categoryViewModel,
                             entry = entry,
@@ -142,23 +155,126 @@ fun CategorySpendScreen(navController: NavController) {
 }
 
 @Composable
+fun UserSelectableDate(entries: List<CategorySpendModel>,
+                       onFilter: (List<CategorySpendModel>) -> Unit)
+{
+    val customColors = LocalCustomColors.current
+    var startDateStr by remember {mutableStateOf("")}
+    var endDateStr by remember {mutableStateOf("")}
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+    var expanded by remember {mutableStateOf(false)}
+
+    fun showDatePicker(onDateSelected : (String) -> Unit) {
+        DatePickerDialog(context, { _, year, month, day ->
+            onDateSelected("${day.toString().padStart(2, '0')}/${(month + 1).toString().padStart(2, '0')}/$year")
+
+        },
+        calendar.get(Calendar.YEAR),
+        calendar.get(Calendar.MONTH),
+        calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    fun filterLogic()
+    {
+        try {
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val startDate = sdf.parse(startDateStr)
+            val endDate = sdf.parse(endDateStr)
+
+            if (startDate != null && endDate != null)
+            {
+                val filtered = entries.filter {
+                    val entryDate = it.creationDate
+                    entryDate != null && !entryDate.before(startDate) && !entryDate.after(endDate)
+                }
+                onFilter(filtered)
+            }
+        } catch (e: Exception)
+        {
+            e.printStackTrace()
+        }
+    }
+
+    Box(contentAlignment=Alignment.Center, modifier = Modifier.fillMaxWidth()
+    ) {
+        if (!expanded) {
+            OutlinedButton(
+                onClick= {
+                // Expand box
+                expanded = !expanded
+            },
+                modifier=Modifier.width(300.dp)) {
+                Text(color=customColors.TextColor,text="Click here to filter!")
+            }
+        }
+        if (expanded) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedButton(
+                        onClick = { showDatePicker { startDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(color=customColors.TextColor,text=if (startDateStr.isNotEmpty()) startDateStr else "Start Date")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    OutlinedButton(
+                        onClick = { showDatePicker { endDateStr = it } },
+                        modifier = Modifier.width(150.dp)
+                    ) {
+                        Text(color=customColors.TextColor,text=if (endDateStr.isNotEmpty()) endDateStr else "End Date")
+                    }
+
+
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
+                    onClick = {
+                        // Filter
+                        filterLogic()
+                    },
+                    shape = RoundedCornerShape(5.dp),
+                    modifier = Modifier.height(40.dp)
+                ) {
+                    Text(color=customColors.TextColor,text="FILTER")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+    }
+}
+
+@Composable
 fun ExpenseEntryRow(
     categoryViewModel: CategoryViewModel,
     entry: CategorySpendModel,
     onUpdate: (CategorySpendModel) -> Unit,
     onDelete: () -> Unit
 ) {
+    RequestImagePermissionIfNeeded()
     var expanded by remember { mutableStateOf(false) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var actualTitle by remember {mutableStateOf("")}
     var customColors = LocalCustomColors.current
+    val simpleDateFormat = SimpleDateFormat("yyyy-mm-dd' | Time: 'HH:mm:ss")
+    val context = LocalContext.current
 
     // Load the image from the URI (photoUri)
     LaunchedEffect(entry.photoUri) {
         try {
-            val file = File(entry.photoUri)
-            if (file.exists()) {
-                bitmap = BitmapFactory.decodeStream(FileInputStream(file))
+            // CONTENT RESOLVER API
+            val uri = Uri.parse(entry.photoUri)
+            context.contentResolver.openInputStream(uri)?.use {inputStream ->
+                bitmap = BitmapFactory.decodeStream(inputStream)
             }
         } catch (e: Exception) {
             Log.e("ExpenseEntryRow", "Error loading image: ${e.message}")
@@ -170,7 +286,7 @@ fun ExpenseEntryRow(
             .fillMaxWidth()
             .padding(vertical = 6.dp, horizontal = 12.dp)
             .clickable { expanded = !expanded },
-        colors=CardDefaults.cardColors(containerColor=customColors.TextBoxBG),
+        colors=CardDefaults.cardColors(containerColor=customColors.PadColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -181,7 +297,7 @@ fun ExpenseEntryRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(entry.ItemName, style = MaterialTheme.typography.bodyLarge)
+                    Text(color=customColors.TextColor,text=entry.ItemName, style = MaterialTheme.typography.bodyLarge)
                     Spacer(modifier=Modifier.height(5.dp))
                     Divider()
                     Spacer(modifier=Modifier.height(8.dp))
@@ -194,11 +310,12 @@ fun ExpenseEntryRow(
                             actualTitle = "NULL"
                     }
 
-                    Text(
-                        "Category: $actualTitle",
-                        style = MaterialTheme.typography.bodySmall
+                    Text(color=customColors.TextColor,
+                        text="Category: $actualTitle",
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    Text("Spend: ${entry.spend}", style = MaterialTheme.typography.bodyMedium)
+                    Text(color=customColors.TextColor,text="Spend: ${entry.spend}", style = MaterialTheme.typography.bodyMedium)
+                    Text(color=customColors.TextColor,text="Date: ${simpleDateFormat.format(entry.creationDate)}", style = MaterialTheme.typography.bodyMedium)
                 }
 
                 if (bitmap != null) {
@@ -218,16 +335,16 @@ fun ExpenseEntryRow(
                 Divider()
 
                 Column(modifier = Modifier.padding(top = 8.dp)) {
-                    Text("Photo URI: ${entry.photoUri}", style = MaterialTheme.typography.bodySmall)
+                    Text(color=customColors.TextColor,text="Photo URI: ${entry.photoUri}", style = MaterialTheme.typography.bodySmall)
 
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { onUpdate(entry) }) {
-                            Text("Update")
+                            Text(color=customColors.TextColor,text="Update")
                         }
                         Button(onClick = { onDelete() }) {
-                            Text("Delete")
+                            Text(color=customColors.TextColor,text="Delete")
                         }
                     }
                 }
@@ -244,6 +361,7 @@ fun UpdateCategorySpendScreen(
     entryId: Int,
     onUpdateComplete: () -> Unit
 ) {
+    RequestImagePermissionIfNeeded()
     val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }
@@ -296,7 +414,7 @@ fun UpdateCategorySpendScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Spend Title input field
                 StandardTextBox(
@@ -306,7 +424,7 @@ fun UpdateCategorySpendScreen(
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
                     modifier = Modifier.fillMaxWidth()
                 )
-                Spacer(modifier=Modifier.height(8.dp))
+                Spacer(modifier=Modifier.height(16.dp))
                 // Spend input field
                 StandardTextBox(
                     value = spend,
@@ -316,7 +434,7 @@ fun UpdateCategorySpendScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Upload Image button
                 StandardButton(
@@ -324,10 +442,10 @@ fun UpdateCategorySpendScreen(
                     text="Upload Image",
                     onClick = { /* Open image picker */ })
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
                 // Display selected image URI
-                Text("Selected Image URI: $photoUri", fontSize = 12.sp)
+                Text(color=customColors.TextColor,text="Selected Image URI: $photoUri", fontSize = 12.sp)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -344,8 +462,9 @@ fun UpdateCategorySpendScreen(
                         }
 
                         val updatedModel = it.copy(
-                            ItemName = selectedCategory!!.title ?: "",
+                            ItemName = spendTitle ?: "",
                             spend = spendValue,
+                            category=selectedCategory!!.id,
                             photoUri = photoUri
                         )
 
