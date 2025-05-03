@@ -12,6 +12,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -83,9 +85,16 @@ fun CategorySpendScreen(navController: NavController) {
     var removeSpace by remember {mutableStateOf(false)}
     // Trigger fetch on composition
     LaunchedEffect(Unit) {
-        viewModel.getAllUserEntries(userId) {
-            entries = it
-            isLoading = false
+        try {
+            viewModel.getAllUserEntries(userId) {
+                entries = it
+                isLoading = false
+            }
+        } catch (e : Exception)
+        {
+            e.printStackTrace()
+            println("Error loading user entries")
+            isLoading = true
         }
     }
 
@@ -341,11 +350,16 @@ fun ExpenseEntryRow(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { onUpdate(entry) }) {
+                    Row(horizontalArrangement = Arrangement.Center, modifier=Modifier.fillMaxWidth()) {
+                        Button(
+                            colors=ButtonDefaults.buttonColors(containerColor=customColors.InColor),
+                            onClick = { onUpdate(entry) }) {
                             Text(color=customColors.TextColor,text="Update")
                         }
-                        Button(onClick = { onDelete() }) {
+                        Spacer(modifier=Modifier.width(8.dp))
+                        Button(
+                            colors=ButtonDefaults.buttonColors(containerColor=customColors.InColor),
+                            onClick = { onDelete() }) {
                             Text(color=customColors.TextColor,text="Delete")
                         }
                     }
@@ -379,7 +393,27 @@ fun UpdateCategorySpendScreen(
     var selectedCategory by remember { mutableStateOf<CategoryModel?>(null) }
     var spend by remember { mutableStateOf("") }
     var spendTitle by remember {mutableStateOf("")}
-    var photoUri by remember { mutableStateOf("") }
+    var photoUri by remember { mutableStateOf(entry?.photoUri ?: "") }
+
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    // Load the image from the URI (photoUri)
+    LaunchedEffect(photoUri) {
+        try {
+            // CONTENT RESOLVER API
+            val uri = Uri.parse(photoUri)
+            context.contentResolver.openInputStream(uri)?.use {inputStream ->
+                bitmap = BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: Exception) {
+            Log.e("ExpenseEntryRow", "Error loading image: ${e.message}")
+        }
+    }
+
+    // (Developer et al., 2025)
+    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        photoUri = uri?.toString() ?: ""
+    }
 
 
 
@@ -439,11 +473,31 @@ fun UpdateCategorySpendScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Box(modifier=Modifier.fillMaxWidth(), contentAlignment= Alignment.Center)
+                {
+                    // (Developer et al., 2025)
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap!!.asImageBitmap(),
+                            contentDescription = "Expense Photo",
+                            modifier = Modifier
+                                .size(60.dp)
+                                .padding(start = 8.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Upload Image button
                 StandardButton(
                     modifier=Modifier.padding(horizontal=32.dp),
-                    text="Upload Image",
-                    onClick = { /* Open image picker */ })
+                    text="Update Image",
+                    onClick = {
+                    /* Open image picker */
+                        imageLauncher.launch("image/*")
+                    })
 
                 Spacer(modifier = Modifier.height(32.dp))
 

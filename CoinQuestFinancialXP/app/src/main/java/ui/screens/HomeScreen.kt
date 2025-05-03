@@ -522,7 +522,9 @@ fun FinancialSummaryCard(navController : NavController) {
                 )
 
                 if (!budgetIsCreated) {
-                    Button(onClick = {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(containerColor=customColors.InColor),
+                        onClick = {
                         // Navigate to create budget screen
                         navController.navigate(Screen.CaptureNewBudget.route)
                     }) {

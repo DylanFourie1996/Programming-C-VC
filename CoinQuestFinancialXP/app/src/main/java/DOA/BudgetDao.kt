@@ -13,7 +13,10 @@ interface BudgetDao {
     suspend fun getBudgetsByUserId(userId: Int): List<BudgetModel>
 
     @Query("SELECT * FROM budget WHERE id = :id")
-    suspend fun getBudgetById(id: Int): BudgetModel
+    suspend fun getBudgetById(id: Int): BudgetModel?
+
+    @Query("SELECT * FROM budget WHERE id = :id")
+    suspend fun forceGetBudgetById(id: Int): BudgetModel?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBudget(budget: BudgetModel): Long
@@ -42,6 +45,9 @@ interface BudgetDao {
 
     @Query("DELETE FROM budget WHERE userId = :userId")
     suspend fun deleteBudgetByUserId(userId: Int)
+
+    @Query("SELECT COALESCE(SUM(spend), 0) FROM categoryspend WHERE budgetId = :budgetId")
+    suspend fun getTotalSpentOnBudget(budgetId: Int) : Float
 
 
 }

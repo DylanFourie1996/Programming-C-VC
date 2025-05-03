@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -17,9 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +32,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.coinquest.data.DatabaseProvider
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +52,8 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
             DatabaseProvider.getDatabase(context).budgetDao()
         )
     )
+
+    val coroutineScope = rememberCoroutineScope()
 
     var showSaveError by remember {mutableStateOf(false)}
     var showLimitError by remember {mutableStateOf(false)}
@@ -139,6 +146,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
 
         // Save button
         Button(
+            colors = ButtonDefaults.buttonColors(containerColor=customColors.InColor),
             onClick = {
                 showLimitError = false
                 showSaveError = false
@@ -152,10 +160,32 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
                 val limitFloat = limit.toFloatOrNull() ?: 0f
                 val saveFloat = save.toFloatOrNull() ?: 0f
 
-                if (currentUserId != -1) {
-                    viewModel.insertBudget(currentUserId, limitFloat, saveFloat, durationType)
-                    navController.popBackStack()
+                coroutineScope.launch {
+                    if (currentUserId != -1) {
+                        // get previous budget if any
+                        val prevBudget = viewModel.getBudget()
+                        var totalSpent = 0f
+                        if (prevBudget != null) {
+                            if (prevBudget.id == 1) {
+                                // calculate how much money has been spent already
+                                totalSpent = viewModel.getTotalSpentOnBudget()
+                                println("TOTAL SPENT: $totalSpent")
+                            }
+                        }
+
+                        print("Total Spent to subtract: $totalSpent")
+                        viewModel.insertUpdatedBudget(
+                            currentUserId,
+                            limitFloat,
+                            saveFloat,
+                            durationType,
+                            totalSpent
+                        )
+                        navController.popBackStack()
+                    }
                 }
+
+
             },
             modifier = Modifier.align(Alignment.End)
         ) {

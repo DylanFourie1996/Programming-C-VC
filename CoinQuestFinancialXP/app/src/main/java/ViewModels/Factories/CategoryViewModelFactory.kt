@@ -10,10 +10,12 @@ import com.example.coinquest.data.DatabaseProvider
 class CategoryViewModelFactory(private val context: Context) : ViewModelProvider.Factory { // (Developers et al., 2025)
     override fun <T : ViewModel> create(modelClass : Class<T>) : T {
         val categoryDao = DatabaseProvider.getDatabase(context).categoryDao()
+        val userDao = DatabaseProvider.getDatabase(context).userDao()
         val sessionManager = SessionManager.getInstance(context)
 
         return CategoryViewModel(
             categoryDao,
+            userDao,
             sessionManager
         ) as T
     }

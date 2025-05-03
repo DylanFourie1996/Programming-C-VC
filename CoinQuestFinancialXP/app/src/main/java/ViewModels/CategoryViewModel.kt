@@ -16,11 +16,19 @@ import org.mindrot.jbcrypt.BCrypt
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.stateIn
 
-class CategoryViewModel(private val categoryDao : CategoryDao, sessionManager: SessionManager) : ViewModel() { // (Developers et al., 2025)
+class CategoryViewModel(private val categoryDao : CategoryDao, private val userDao : UserDao, sessionManager: SessionManager) : ViewModel() { // (Developers et al., 2025)
     init {
         /* Only on mobile storage version. */
         if (sessionManager.isLoggedIn()) {
-            insertPremadeCategories(sessionManager.getUserId())
+            val userId = sessionManager.getUserId()
+            viewModelScope.launch {
+                if (userDao.getUserById(userId) != null) {
+                    insertPremadeCategories(sessionManager.getUserId())
+                } else
+                {
+                    println("User id is null: ${userId}")
+                }
+            }
         }
     }
     fun getPremadeCategories(userId : Int) : List<CategoryModel>
