@@ -68,7 +68,7 @@ fun CategoryCreation(navController : NavController) {
     val customColors = LocalCustomColors.current
     Scaffold(topBar =  {
         Column(modifier=Modifier.fillMaxWidth().padding(top=32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Categories")
+            Text(color=customColors.TextColor,text="Categories")
             Divider(modifier=Modifier.padding(top=32.dp, bottom=0.dp), color=customColors.DividerColor1)
         }
 
@@ -100,10 +100,10 @@ fun CategoryCreation(navController : NavController) {
             onDismissRequest = {
                 showAddCategory.value = false
             },
-            title={Text("New Category")},
+            title={Text(color=customColors.TextColor,text="New Category")},
             text={
                 Column(modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)) {
-                    Text("Create a new category")
+                    Text(color=customColors.TextColor,text="Create a new category")
                     Spacer(modifier = Modifier.height(32.dp))
                     StandardTextBox(
                         modifier = Modifier.fillMaxWidth(),
@@ -156,7 +156,7 @@ fun Tag(categoryViewModel : CategoryViewModel, category : CategoryModel)
                     contentAlignment = Alignment.Center
                 )
                 {
-                    Text(category.title)
+                    Text(color=customColors.TextColor,text=category.title)
                 }
             }
             if (!isPremade) {

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import DOA.CategorySpendDao
 import DOA.BudgetDao
+import DOA.CategorySpendPair
+import Model.BudgetModel
 import Model.CategoryModel
 import Model.CategorySpendModel
 import kotlinx.coroutines.Job
@@ -14,17 +16,42 @@ class CategorySpendViewModel(
     private val categorySpendDao: CategorySpendDao,
     private val budgetDao: BudgetDao
 ) : ViewModel() {
+    fun getCategorySendPairs(userId : Int, budgetId : Int) : Flow<List<CategorySpendPair>>
+    {
+        return categorySpendDao.getCategorySpendPairs(userId, budgetId)
+    }
+
+
 
     fun getSpendsForBudget(budgetId: Int, onResult: (List<CategorySpendModel>) -> Unit) {
         viewModelScope.launch {
             try {
-                val entries = categorySpendDao.getSpendsForBudgetFlow(budgetId)
-                onResult(entries as List<CategorySpendModel>)
+                categorySpendDao.getSpendsForBudgetFlow(budgetId).collect{ entries ->
+                    onResult(entries)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 onResult(emptyList())
             }
         }
+    }
+
+    fun getBudgetById(budgetId: Int, onResult: (BudgetModel?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                val budget = budgetDao.getBudgetById(budgetId)
+                onResult(budget)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(null)
+            }
+        }
+    }
+
+    suspend fun getSpendForCategory(categoryId : Int) : Float
+    {
+        val spend = categorySpendDao.getSpendForCategory(categoryId)
+        return spend ?: 0f
     }
 
     fun getCategoriesForUser(userId: Int): Flow<List<CategoryModel>> {

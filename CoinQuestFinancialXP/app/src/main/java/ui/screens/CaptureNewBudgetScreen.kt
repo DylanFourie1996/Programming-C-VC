@@ -27,11 +27,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.coinquest.data.DatabaseProvider
+import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaptureNewBudgetScreen(navController: NavHostController) {
+    val customColors = LocalCustomColors.current
     // Context and session management
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }
@@ -61,11 +63,11 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
 
     Column(modifier = Modifier.padding(16.dp)) {
         // User info display
-        if (currentUserId != -1 && currentUserEmail != null) {
-            Text("Logged in as: $currentUserEmail (ID: $currentUserId)")
+        /*if (currentUserId != -1 && currentUserEmail != null) {
+            Text(color=customColors.TextColor,text="Logged in as: $currentUserEmail (ID: $currentUserId)")
         } else {
-            Text("User not logged in")
-        }
+            Text(color=customColors.TextColor,text="User not logged in")
+        }*/
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -73,7 +75,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
         TextField(
             value = limit,
             onValueChange = { limit = it },
-            label = { Text("Budget Limit (R)") },
+            label = { Text(color=customColors.TextColor,text="Budget Limit (R)") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -83,7 +85,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
         TextField(
             value = save,
             onValueChange = { save = it },
-            label = { Text("Savings (R)") },
+            label = { Text(color=customColors.TextColor,text="Savings (R)") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -98,7 +100,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
                 value = selectedDuration,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Select Duration") },
+                label = { Text(color=customColors.TextColor,text="Select Duration") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier
                     .menuAnchor()
@@ -111,7 +113,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
             ) {
                 durationOptions.forEach { label ->
                     DropdownMenuItem(
-                        text = { Text(label) },
+                        text = { Text(color=customColors.TextColor,text=label) },
                         onClick = {
                             selectedDuration = label
                             expanded = false
@@ -136,7 +138,7 @@ fun CaptureNewBudgetScreen(navController: NavHostController) {
             },
             modifier = Modifier.align(Alignment.End)
         ) {
-            Text("Save Budget")
+            Text(color=customColors.TextColor,text="Save Budget")
         }
     }
 }

@@ -25,4 +25,15 @@ interface CategorySpendDao {
 
     @Query("SELECT * FROM category WHERE userId=:userId OR userId=null")
     fun getAllCategories(userId: Int): Flow<List<CategoryModel>>
+
+    @Query("SELECT spend FROM categoryspend WHERE category=:categoryId")
+    suspend fun getSpendForCategory(categoryId : Int) : Float?
+
+    @Query("""
+        SELECT c.*, cs.spend
+        FROM category c
+        LEFT JOIN categoryspend cs ON cs.category = c.id AND cs.budgetId = :budgetId
+        WHERE c.userId = :userId OR c.userId IS NULL
+    """)
+    fun getCategorySpendPairs(userId: Int, budgetId: Int): Flow<List<CategorySpendPair>>
 }

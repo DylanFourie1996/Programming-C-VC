@@ -1,10 +1,16 @@
 package com.example.coinquestfinancialxp.ui.screens
 
+import DOA.CategorySpendPair
+import Model.BudgetModel
+import Model.CategoryModel
+import Model.CategorySpendModel
+import Screens.ExpenseEntryRow
 import Utils.SessionManager
 import ViewModels.BudgetViewModel
 import ViewModels.CaptureNewBudgetViewModel
 import ViewModels.Factories.BudgetViewModelFactory
 import ViewModels.Factories.CaptureNewBudgetViewModelFactory
+import ViewModels.Factories.CategorySpendViewModelFactory
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -17,6 +23,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +44,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,9 +63,17 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.coinquest.data.DatabaseProvider
+import com.example.coinquest.viewmodel.CategorySpendViewModel
 import com.example.coinquestfinancialxp.navigation.Screen
 import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.count
+import kotlinx.coroutines.flow.forEach
+import kotlinx.coroutines.launch
+import kotlin.collections.getValue
+import kotlin.collections.ifEmpty
+import kotlin.collections.setValue
 
 
 @Preview(showBackground = true)
@@ -73,16 +91,80 @@ fun HomeScreen(navController: NavHostController) {
 
     var budgetIsCreated by remember { mutableStateOf(false) }
 
+    val spendPairs = remember {mutableStateListOf<CategorySpendPair>()}
+
+
+    // Initialize ViewModel for BudgetViewModel
+    var categorySpendViewModel : CategorySpendViewModel = viewModel(factory = CategorySpendViewModelFactory(
+        DatabaseProvider.getDatabase(LocalContext.current).categorySpendDao(),
+        DatabaseProvider.getDatabase(LocalContext.current).budgetDao()
+    ))
+
     // Initialize ViewModel for BudgetViewModel
     var budgetViewModel : BudgetViewModel = viewModel(factory = BudgetViewModelFactory(
         LocalContext.current
     ))
 
-    // Check that budget has been created
+    var budget by remember {mutableStateOf<BudgetModel?>(null)}
+
+    val sessionManager = SessionManager.getInstance(LocalContext.current)
+
+
+        // Check that budget has been created
     LaunchedEffect(Unit) {
         budgetViewModel.allBudgets.collect {budgetList ->
             budgetIsCreated = budgetList.isNotEmpty()
+
+
+
+            if (budgetIsCreated) {
+                println("Budgets found!")
+                categorySpendViewModel.getBudgetById(1) { res ->
+                    if (res != null) {
+                        // Use the budget object here
+                        budget = res
+                        println("Budget id: ${res.id}")
+                    }
+                    else
+                    {
+                        println("Budget does not exist ;(")
+                    }
+                }
+
+                categorySpendViewModel.getCategorySendPairs(
+                    userId = sessionManager.getUserId(),
+                    budgetId=1
+                ).collect {pairs ->
+                    spendPairs.clear()
+                    spendPairs.addAll(pairs)
+                }
+
+
+                /*
+                categorySpendViewModel.getCategoriesForUser(sessionManager.getUserId()).collect() { categories ->
+                    val spends = categories.map{ cat->
+                        async {
+                            val spend = categorySpendViewModel.getSpendForCategory(cat.id)
+                            cat to spend
+                        }
+                    }.awaitAll()
+
+                    categorySpendList.clear()
+
+                    spends.forEach {(cat, spend) ->
+                        categorySpendList[cat] = spend
+                    }
+
+                }
+                 */
+
+
+                    //lst.forEach {}
+                    //categorySpendList = lst
+            }
         }
+
+
     }
 
     BackHandler {  }
@@ -121,7 +203,7 @@ fun HomeScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Create Budget",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
@@ -156,13 +238,12 @@ fun HomeScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Insert Expense",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
                                             vertical = 6.dp
                                         ),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                                 SmallFloatingActionButton(
@@ -191,13 +272,12 @@ fun HomeScreen(navController: NavHostController) {
                                     shape = RoundedCornerShape(16.dp),
                                     modifier = Modifier.padding(end = 8.dp)
                                 ) {
-                                    Text(
+                                    Text(color=customColors.TextColor,
                                         text = "Add Category",
                                         modifier = Modifier.padding(
                                             horizontal = 12.dp,
                                             vertical = 6.dp
                                         ),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
                                     )
                                 }
                                 SmallFloatingActionButton(
@@ -252,7 +332,7 @@ fun HomeScreen(navController: NavHostController) {
                     }) {
                         Icon(Icons.Default.Edit, contentDescription = "Create")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Update Budget")
+                        Text(color=customColors.TextColor,text="Update Budget")
                     }
                 }
             }
@@ -260,30 +340,34 @@ fun HomeScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Recent Transactions Section
-            Text(
+            /*Text(color=customColors.TextColor,
                 text = "Recent Transactions",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Start)
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))*/
 
 //            RecentTransactionsList()
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Budget Progress Section
-            Text(
-                text = "Budget Progress",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Start)
-            )
+            if (budget != null) {
+                Column(horizontalAlignment=Alignment.CenterHorizontally, modifier=Modifier.fillMaxWidth()) {
+                    // Budget Progress Section
+                    Text(color=customColors.TextColor,
+                        text = "Budget Progress",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                    Divider(modifier=Modifier.width(50.dp).padding(vertical=16.dp))
 
-//            BudgetProgressList()
+
+                    BudgetProgressList(spendPairs, budget)
+                }
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -291,7 +375,7 @@ fun HomeScreen(navController: NavHostController) {
                 onClick = { navController.navigate(Screen.CategorySpendScreen.route) }, //Should Move it to Expense List
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "Go To Expense List")
+                Text(color=customColors.TextColor,text = "Go To Expense List")
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(Icons.Default.ArrowForward, contentDescription = "Navigate")
             }
@@ -302,8 +386,44 @@ fun HomeScreen(navController: NavHostController) {
 }
 
 @Composable
+fun BudgetProgressList(
+    spendList : List<CategorySpendPair>,
+    budget : BudgetModel?
+)
+{
+
+
+    val customColors = LocalCustomColors.current
+    val toSpend = budget?.let { it.limit-it.save } ?: return
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier=Modifier.fillMaxWidth().padding(horizontal=16.dp)) {
+       spendList.forEach { entry ->
+           val cat = entry.category
+           val amount = entry.spend ?: 0f
+            Surface(
+                shadowElevation=3.dp,
+                shape= RoundedCornerShape(15.dp),
+                modifier=Modifier.fillMaxWidth(),
+                color=Color.White
+
+            ) {
+                Column(modifier=Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment=Alignment.CenterHorizontally) {
+                    Text(color=customColors.TextColor,text=cat.title)
+                    Spacer(modifier=Modifier.height(4.dp))
+                    Divider()
+                    Spacer(modifier=Modifier.height(16.dp))
+                    Text(color=customColors.TextColor,text="R${amount}/R${toSpend}")
+                    Spacer(modifier=Modifier.height(16.dp))
+                    Text(color=customColors.TextColor,text="%${amount/toSpend*100} of budget")
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun FinancialSummaryCard(navController : NavController) {
     // Getting the context and session handler
+    val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }
     val currentUserId = sessionHandler.getUserId()
@@ -355,9 +475,9 @@ fun FinancialSummaryCard(navController : NavController) {
                     .padding(16.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "Total Balance", fontSize = 16.sp, color = Color.Gray)
+                Text(color=customColors.TextColor,text = "Total Balance", fontSize = 16.sp)
 
-                Text(
+                Text(color=customColors.TextColor,
                     text = "R${"%.2f".format(totalBalance)}",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
@@ -392,10 +512,9 @@ fun FinancialSummaryCard(navController : NavController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(
+                Text(color=customColors.TextColor,
                     text = "No budget information available",
                     fontSize = 16.sp,
-                    color = Color.Gray,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
 
@@ -406,7 +525,7 @@ fun FinancialSummaryCard(navController : NavController) {
                     }) {
                         Icon(Icons.Default.Add, contentDescription = "Create")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Create Budget")
+                        Text(color=customColors.TextColor,text="Create Budget")
                     }
                 }
             }
@@ -431,6 +550,7 @@ fun FinancialSummaryCard(navController : NavController) {
 
     @Composable
     fun TransactionItem(title: String, amount: String) {
+        val customColors = LocalCustomColors.current
         val isPositive = amount.startsWith("+")
 
         Surface(
@@ -448,7 +568,7 @@ fun FinancialSummaryCard(navController : NavController) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = title)
+                Text(color=customColors.TextColor,text = title)
                 Text(
                     text = amount,
                     color = if (isPositive) Color(0xFF4CAF50) else Color(0xFFE57373),
@@ -492,12 +612,14 @@ fun FinancialSummaryCard(navController : NavController) {
 
     @Composable
     fun BudgetProgressItem(
+
         category: String,
         amountSpent: Float,
         totalBudget: Float,
         onCreateBudgetClick: () -> Unit = {},
         onExpenseListClick: () -> Unit = {}
     ) {
+        val customColors = LocalCustomColors.current
         val progress = (amountSpent / totalBudget).coerceIn(0f, 1f)
         val isOverBudget = amountSpent > totalBudget
 
@@ -521,7 +643,7 @@ fun FinancialSummaryCard(navController : NavController) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = category)
+                    Text(color=customColors.TextColor,text = category)
                     Text(
                         text = "R${amountSpent} / R${totalBudget}",
                         color = if (isOverBudget) Color(0xFFE57373) else Color.Gray
@@ -568,7 +690,7 @@ fun FinancialSummaryCard(navController : NavController) {
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Create Budget")
+                            Text(color=customColors.TextColor,text="Create Budget")
                         }
 
                         Button(
@@ -587,7 +709,7 @@ fun FinancialSummaryCard(navController : NavController) {
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Expense List")
+                            Text(color=customColors.TextColor,text="Expense List")
                         }
                     }
                 }
@@ -598,11 +720,11 @@ fun FinancialSummaryCard(navController : NavController) {
 
 @Composable
 fun FinancialMetric(label: String, value: String, positive: Boolean) {
+    val customColors = LocalCustomColors.current
     Column {
-        Text(
+        Text(color=customColors.TextColor,
             text = label,
             fontSize = 14.sp,
-            color = Color.Gray
         )
         Text(
             text = value,
