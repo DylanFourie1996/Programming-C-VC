@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
     }*/
             var showNavBar by rememberSaveable { mutableStateOf(true) }
             var isDarkTheme by rememberSaveable { mutableStateOf(false) }
-            CoinQuestFinancialXPTheme(darkTheme = isDarkTheme) {
+            CoinQuestFinancialXPTheme(darkTheme = isDarkTheme) { // (Developers et al., 2025)
 
                 MainScreen(isDarkTheme=isDarkTheme, showNavBar=showNavBar, onShowNavBarChanged={showNavBar=it}, onToggleTheme={isDarkTheme=!isDarkTheme})
             }
@@ -50,9 +50,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
+@Composable // (Developers et al., 2025)
 fun MainScreen(isDarkTheme : Boolean, showNavBar : Boolean, onShowNavBarChanged: (Boolean) -> Unit, onToggleTheme: () -> Unit) {
-    val navController = rememberNavController()
+    val navController = rememberNavController() // (Developers et al., 2025)
     val customColors = LocalCustomColors.current
     Scaffold(
         modifier= Modifier.background(customColors.page),
@@ -71,3 +71,12 @@ fun MainScreen(isDarkTheme : Boolean, showNavBar : Boolean, onShowNavBarChanged:
         }
     )
 }
+
+/* References
+
+
+
+Developers. 2025. Design systems in Compose, 16 April 2025 [Online]. Available at: https://developer.android.com/develop/ui/compose/designsystems [Accessed 3 May 2025].
+
+Developers. 2025. Navigation with Compose, 16 April 2025 [Online]. Available at: https://developer.android.com/develop/ui/compose/navigation [Accessed 3 May 2025].
+ */

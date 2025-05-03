@@ -22,12 +22,12 @@ import ui.screens.RegisterScreen
 import ui.screens.StatsScreen
 
 @Composable
-fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNavbarChanged: (Boolean) -> Unit, onToggleTheme: () -> Unit) {
+fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNavbarChanged: (Boolean) -> Unit, onToggleTheme: () -> Unit) { // (Developers et al., 2025)
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context=context) }
 
     val startDest = if (sessionManager.isLoggedIn()) Screen.Home.route else Screen.Login.route
-    NavHost(navController = navController, startDestination = startDest) { // CHANGE BACK TO LOGIN.ROUTE
+    NavHost(navController = navController, startDestination = startDest) { // (Developers et al., 2025)
         composable(route=Screen.Login.route+"?email={email}",
             arguments = listOf(
                 navArgument("email") {
@@ -140,7 +140,7 @@ fun Navigation(navController: NavHostController, isDarkTheme : Boolean, onShowNa
     }
 }
 
-fun checkSessionAndRedirect(sessionManager: SessionManager, navController : NavHostController): Boolean {
+fun checkSessionAndRedirect(sessionManager: SessionManager, navController : NavHostController): Boolean { // (Developers et al., 2025)
     if (!sessionManager.isLoggedIn()) {
         navController.navigate(Screen.Login.route) {
             popUpTo(0) {inclusive=true}
@@ -150,3 +150,12 @@ fun checkSessionAndRedirect(sessionManager: SessionManager, navController : NavH
     }
     return false
 }
+
+/* References
+
+
+
+Developers. 2025. Design systems in Compose, 16 April 2025 [Online]. Available at: https://developer.android.com/develop/ui/compose/designsystems [Accessed 3 May 2025].
+
+Developers. 2025. Navigation with Compose, 16 April 2025 [Online]. Available at: https://developer.android.com/develop/ui/compose/navigation [Accessed 3 May 2025].
+ */

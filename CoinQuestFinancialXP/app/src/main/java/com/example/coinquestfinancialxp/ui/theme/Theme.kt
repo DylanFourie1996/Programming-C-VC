@@ -16,6 +16,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+
+
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
@@ -68,7 +70,7 @@ data class CustomColors(
     val InColor : Color
 )
 
-val LocalCustomColors = staticCompositionLocalOf {
+val LocalCustomColors = staticCompositionLocalOf { // (Developers et al., 2025)
     CustomColors(
         page = PageLight,
         hyperlinkDefault = TextBlack,
@@ -102,7 +104,7 @@ val LocalCustomColors = staticCompositionLocalOf {
 
 
 @Composable
-fun CoinQuestFinancialXPTheme(
+fun CoinQuestFinancialXPTheme( // (Developers et al., 2025)
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -187,3 +189,10 @@ fun CoinQuestFinancialXPTheme(
         )
     }
 }
+
+/* References
+
+
+
+Developers. 2025. Design systems in Compose, 16 April 2025 [Online]. Available at: https://developer.android.com/develop/ui/compose/designsystems [Accessed 3 May 2025].
+*/

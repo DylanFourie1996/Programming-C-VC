@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 
 class CategorySpendOnlyViewModel(
     private val categorySpendOnlyDao: CategorySpendOnlyDao
-) : ViewModel() {
+) : ViewModel() { // (Developers et al., 2025)
 
     fun getAllUserEntries(userId: Int, onResult: (List<CategorySpendModel>) -> Unit) {
         viewModelScope.launch {
@@ -75,3 +75,9 @@ class CategorySpendOnlyViewModel(
         }
     }
 }
+
+/*
+References
+Developers. 2025. ViewModel overview, 10 February 2025 [Online]. Available at: https://developer.android.com/topic/libraries/architecture/viewmodel/ [Accessed 3 May 2025].
+
+ */

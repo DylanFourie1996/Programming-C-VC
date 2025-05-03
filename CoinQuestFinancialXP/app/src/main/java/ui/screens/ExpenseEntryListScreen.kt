@@ -260,6 +260,7 @@ fun ExpenseEntryRow(
     onUpdate: (CategorySpendModel) -> Unit,
     onDelete: () -> Unit
 ) {
+    // (Developer et al., 2025)
     RequestImagePermissionIfNeeded()
     var expanded by remember { mutableStateOf(false) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -318,6 +319,7 @@ fun ExpenseEntryRow(
                     Text(color=customColors.TextColor,text="Date: ${simpleDateFormat.format(entry.creationDate)}", style = MaterialTheme.typography.bodyMedium)
                 }
 
+                // (Developer et al., 2025)
                 if (bitmap != null) {
                     Image(
                         bitmap = bitmap!!.asImageBitmap(),
@@ -361,6 +363,7 @@ fun UpdateCategorySpendScreen(
     entryId: Int,
     onUpdateComplete: () -> Unit
 ) {
+    // (Developer et al., 2025)
     RequestImagePermissionIfNeeded()
     val customColors = LocalCustomColors.current
     val context = LocalContext.current
@@ -479,3 +482,10 @@ fun UpdateCategorySpendScreen(
         }
     }
 }
+
+/*
+References
+
+Developers. 2025. Access media files from shared storage, 16 April 2025. [Online]. Available at: https://developer.android.com/training/data-storage/shared/media [Accessed 3 May 2025].
+Developers. 2025. Compose and other libraries, 16 April 2025. [Online]. Available at: https://developer.android.com/develop/ui/compose/libraries [Accessed 3 May 2025].
+ */
