@@ -4,9 +4,11 @@ import DOA.BudgetDao
 import Model.BudgetModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() { // (Developers et al., 2025)
 
@@ -14,6 +16,52 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
         const val WEEKLY = 1
         const val BIWEEKLY = 2
         const val MONTHLY = 3
+    }
+
+    suspend fun getTotalSpentOnBudget(): Float {
+        return budgetDao.getTotalSpentOnBudget(1)
+    }
+
+    fun insertUpdatedBudget(userId: Int, limit: Float, save: Float, durationType: Int, toSub : Float, currency: String = "ZAR") {
+        if (save > limit) {
+            throw IllegalArgumentException("Savings cannot exceed budget limit.")
+        }
+
+        var usableAmount = limit - save
+        usableAmount -= toSub
+
+        val newBudget = BudgetModel(
+            userId = userId,
+            limit = limit,
+            save = save,
+            durationType = durationType,
+            startDate = System.currentTimeMillis(),
+            remainingBalance = usableAmount,
+            currency = currency
+        )
+
+        viewModelScope.launch {
+            val existingBudget = budgetDao.getBudgetById(1)
+
+            if (existingBudget != null)
+            {
+                val updatedBudget = existingBudget.copy(
+                    limit=limit,
+                    save=save,
+                    durationType=durationType,
+                    startDate=System.currentTimeMillis(),
+                    remainingBalance=usableAmount,
+                    currency = currency
+                )
+
+                budgetDao.updateBudget(updatedBudget)
+            }
+            else{
+                budgetDao.insertBudget(newBudget)
+            }
+            //budgetDao.deleteBudgetByUserId(userId)
+
+        }
     }
 
     fun insertBudget(userId: Int, limit: Float, save: Float, durationType: Int, currency: String = "ZAR") {
@@ -55,12 +103,19 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
     fun updateRemainingBalance(budgetId: Int, spendAmount: Float) {
         viewModelScope.launch {
             val budget = getBudgetById(budgetId)
-            val newRemainingBalance = budget.remainingBalance - spendAmount
+            val newRemainingBalance = budget!!.remainingBalance - spendAmount
             updateBudgetRemainingBalance(budgetId, newRemainingBalance)
         }
     }
 
-    private suspend fun getBudgetById(budgetId: Int): BudgetModel {
+    suspend fun getBudget(): BudgetModel? {
+        return withContext(Dispatchers.IO)
+        {
+            budgetDao.forceGetBudgetById(1)
+        }
+
+    }
+    private suspend fun getBudgetById(budgetId: Int): BudgetModel? {
         return budgetDao.getBudgetById(budgetId)
     }
 
@@ -102,7 +157,7 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
             val budget = getBudgetById(budgetId)
             val now = System.currentTimeMillis()
 
-            val periodLength = when (budget.durationType) {
+            val periodLength = when (budget!!.durationType) {
                 WEEKLY -> 7 * 24 * 60 * 60 * 1000L
                 BIWEEKLY -> 14 * 24 * 60 * 60 * 1000L
                 MONTHLY -> 30 * 24 * 60 * 60 * 1000L
@@ -110,7 +165,7 @@ class CaptureNewBudgetViewModel(private val budgetDao: BudgetDao) : ViewModel() 
             }
 
             if (now - budget.startDate >= periodLength) {
-                val resetBalance = budget.limit - budget.save
+                val resetBalance = budget!!.limit - budget.save
                 val resetBudget = budget.copy(
                     totalSpent = 0f,
                     remainingBalance = resetBalance,

@@ -41,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")

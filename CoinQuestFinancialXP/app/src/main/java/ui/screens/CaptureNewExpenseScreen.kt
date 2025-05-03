@@ -6,9 +6,14 @@ import Utils.SessionManager
 import ViewModels.CategoryViewModel
 import ViewModels.Factories.CategorySpendViewModelFactory
 import ViewModels.Factories.CategoryViewModelFactory
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,8 +22,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -109,9 +117,26 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
     var categoryViewModel : CategoryViewModel = viewModel(factory= CategoryViewModelFactory(context))
     val categories by categoryViewModel.allCategories.collectAsState()
 
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
+
+    // Load the image from the URI (photoUri)
+    LaunchedEffect(photoUri) {
+        try {
+            // CONTENT RESOLVER API
+            val uri = Uri.parse(photoUri)
+            context.contentResolver.openInputStream(uri)?.use {inputStream ->
+                bitmap = BitmapFactory.decodeStream(inputStream)
+            }
+        } catch (e: Exception) {
+            Log.e("ExpenseEntryRow", "Error loading image: ${e.message}")
+        }
+    }
+
     val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         photoUri = uri?.toString() ?: ""
     }
+
+
 
     Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(vertical=16.dp).padding(horizontal=32.dp).verticalScroll(rememberScrollState())) {
         // Display user details if logged in
@@ -153,6 +178,21 @@ fun CaptureCategorySpendScreen(navController: NavHostController) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        Spacer(modifier = Modifier.height(32.dp))
+        Box(modifier=Modifier.fillMaxWidth(), contentAlignment= Alignment.Center)
+        {
+            // (Developer et al., 2025)
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap!!.asImageBitmap(),
+                    contentDescription = "Expense Photo",
+                    modifier = Modifier
+                        .size(60.dp)
+                        .padding(start = 8.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(32.dp))
 
         // Upload Image button

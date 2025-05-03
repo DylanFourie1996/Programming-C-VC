@@ -37,5 +37,22 @@ interface CategorySpendDao {
     """)
     fun getCategorySpendPairs(userId: Int, budgetId: Int): Flow<List<CategorySpendPair>>
 
+    /*@Query("""
+        SELECT c.*, cs.spend
+        FROM category c
+        LEFT JOIN categoryspend cs ON cs.category = c.id AND cs.budgetId = :budgetId
+        WHERE (c.userId = :userId OR c.userId IS NULL)
+        AND cs.creationDate BETWEEN :startDate AND :endDate
+    """)*/
+    @Query("""
+    SELECT c.*, SUM(cs.spend) AS spend
+    FROM category c
+    LEFT JOIN categoryspend cs ON cs.category = c.id AND cs.budgetId = :budgetId
+    WHERE (c.userId = :userId OR c.userId IS NULL)
+    AND cs.creationDate BETWEEN :startDate AND :endDate
+    GROUP BY c.id
+    """)
+    fun getCategorySpendPairsWithinDateRange(userId: Int, budgetId: Int, startDate : String, endDate : String): Flow<List<CategorySpendPair>>
+
 
 }
