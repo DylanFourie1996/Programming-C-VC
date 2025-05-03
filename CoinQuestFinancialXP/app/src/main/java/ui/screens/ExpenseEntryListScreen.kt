@@ -9,6 +9,7 @@ import ViewModels.Factories.CategoryViewModelFactory
 import android.app.DatePickerDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -49,6 +50,7 @@ import com.example.coinquestfinancialxp.ui.theme.LocalCustomColors
 import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
+import ui.RequestImagePermissionIfNeeded
 import ui.screens.CategoryDropdown
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -198,7 +200,8 @@ fun UserSelectableDate(entries: List<CategorySpendModel>,
     Box(contentAlignment=Alignment.Center, modifier = Modifier.fillMaxWidth()
     ) {
         if (!expanded) {
-            OutlinedButton(onClick= {
+            OutlinedButton(
+                onClick= {
                 // Expand box
                 expanded = !expanded
             },
@@ -234,7 +237,7 @@ fun UserSelectableDate(entries: List<CategorySpendModel>,
 
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
+                Button(colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
                     onClick = {
                         // Filter
                         filterLogic()
@@ -257,18 +260,21 @@ fun ExpenseEntryRow(
     onUpdate: (CategorySpendModel) -> Unit,
     onDelete: () -> Unit
 ) {
+    RequestImagePermissionIfNeeded()
     var expanded by remember { mutableStateOf(false) }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var actualTitle by remember {mutableStateOf("")}
     var customColors = LocalCustomColors.current
     val simpleDateFormat = SimpleDateFormat("yyyy-mm-dd' | Time: 'HH:mm:ss")
+    val context = LocalContext.current
 
     // Load the image from the URI (photoUri)
     LaunchedEffect(entry.photoUri) {
         try {
-            val file = File(entry.photoUri)
-            if (file.exists()) {
-                bitmap = BitmapFactory.decodeStream(FileInputStream(file))
+            // CONTENT RESOLVER API
+            val uri = Uri.parse(entry.photoUri)
+            context.contentResolver.openInputStream(uri)?.use {inputStream ->
+                bitmap = BitmapFactory.decodeStream(inputStream)
             }
         } catch (e: Exception) {
             Log.e("ExpenseEntryRow", "Error loading image: ${e.message}")
@@ -280,7 +286,7 @@ fun ExpenseEntryRow(
             .fillMaxWidth()
             .padding(vertical = 6.dp, horizontal = 12.dp)
             .clickable { expanded = !expanded },
-        colors=CardDefaults.cardColors(containerColor=customColors.TextBoxBG),
+        colors=CardDefaults.cardColors(containerColor=customColors.PadColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -355,6 +361,7 @@ fun UpdateCategorySpendScreen(
     entryId: Int,
     onUpdateComplete: () -> Unit
 ) {
+    RequestImagePermissionIfNeeded()
     val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionManager = remember { SessionManager.getInstance(context) }

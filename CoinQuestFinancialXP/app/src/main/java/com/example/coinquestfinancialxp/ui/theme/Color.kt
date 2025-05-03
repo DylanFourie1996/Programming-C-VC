@@ -66,3 +66,14 @@ val PageDark=Color(0x0F262626)
 // Text
 val TextLight = Color(0xFFFFFFFF)
 val TextDark = Color(0xFF494949)
+
+// Pad
+val LightPad = Color(0xFFFFFFFF)
+val DarkPad = Color(0xFF252525)
+
+// NavBar
+val LightNav = Color(0xFFFFFFFF)
+val DarkNav = Color(0xFF212020)
+
+val LightIn = Color(0xFFE91E63)
+val DarkIn = Color(0xFFF44336)

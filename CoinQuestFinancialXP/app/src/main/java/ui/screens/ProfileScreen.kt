@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -73,7 +74,8 @@ fun ProfileScreen(navController: NavHostController) {
                 Text(color=customColors.TextColor,text = "Profile Screen")
             }
             Spacer(modifier = Modifier.height(32.dp))
-            Image(painter=painterResource(R.drawable.profileicon), contentDescription=null, modifier=Modifier.size(48.dp))
+            Image(colorFilter = ColorFilter.tint(customColors.TextColor),
+                painter=painterResource(R.drawable.profileicon), contentDescription=null, modifier=Modifier.size(48.dp))
             Spacer(modifier=Modifier.height(16.dp))
             /*LinearProgressIndicator(
                 progress = 0.5f,

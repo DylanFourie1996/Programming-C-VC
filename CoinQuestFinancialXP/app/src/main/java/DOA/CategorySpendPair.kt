@@ -5,5 +5,5 @@ import androidx.room.Embedded
 
 data class CategorySpendPair(
     @Embedded val category : CategoryModel,
-    val spend : Float?
+    val spend : Float
 )

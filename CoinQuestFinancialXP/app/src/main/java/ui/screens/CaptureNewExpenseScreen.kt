@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import ui.CustomComposables.StandardButton
 import ui.CustomComposables.StandardButtonTheme
 import ui.CustomComposables.StandardTextBox
+import ui.RequestImagePermissionIfNeeded
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +86,7 @@ fun CategoryDropdown(
 
 @Composable
 fun CaptureCategorySpendScreen(navController: NavHostController) {
+    RequestImagePermissionIfNeeded()
     val customColors = LocalCustomColors.current
     val context = LocalContext.current
     val sessionHandler = remember { SessionManager.getInstance(context) }

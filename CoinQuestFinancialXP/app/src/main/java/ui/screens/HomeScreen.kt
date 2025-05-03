@@ -174,6 +174,7 @@ fun HomeScreen(navController: NavHostController) {
         },
         floatingActionButton = {
             Box(
+
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
@@ -300,7 +301,7 @@ fun HomeScreen(navController: NavHostController) {
                     // Main FAB
                     FloatingActionButton(
                         onClick = { expandedFab.value = !expandedFab.value },
-                        containerColor = MaterialTheme.colorScheme.primary
+                        containerColor = customColors.InColor,
                     ) {
                         Icon(
                             imageVector = if (expandedFab.value) Icons.Default.Close else Icons.Default.Add,
@@ -326,7 +327,8 @@ fun HomeScreen(navController: NavHostController) {
 
                 if (budgetIsCreated)
                 {
-                    Button(onClick = {
+                    Button(colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
+                        onClick = {
                         // Navigate to create budget screen
                         navController.navigate(Screen.CaptureNewBudget.route)
                     }) {
@@ -372,6 +374,7 @@ fun HomeScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
+                colors= ButtonDefaults.buttonColors(containerColor =customColors.InColor),
                 onClick = { navController.navigate(Screen.CategorySpendScreen.route) }, //Should Move it to Expense List
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -403,7 +406,7 @@ fun BudgetProgressList(
                 shadowElevation=3.dp,
                 shape= RoundedCornerShape(15.dp),
                 modifier=Modifier.fillMaxWidth(),
-                color=Color.White
+                color=customColors.PadColor
 
             ) {
                 Column(modifier=Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment=Alignment.CenterHorizontally) {
@@ -466,7 +469,7 @@ fun FinancialSummaryCard(navController : NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shape = RoundedCornerShape(15.dp),
             shadowElevation = 3.dp
         ) {
@@ -501,7 +504,7 @@ fun FinancialSummaryCard(navController : NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shape = RoundedCornerShape(15.dp),
             shadowElevation = 3.dp
         ) {
@@ -558,7 +561,7 @@ fun FinancialSummaryCard(navController : NavController) {
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             shape = RoundedCornerShape(100.dp),
-            color = Color.White,
+            color = customColors.PadColor,
             shadowElevation = 3.dp
         ) {
             Row(
@@ -629,7 +632,7 @@ fun FinancialSummaryCard(navController : NavController) {
             modifier = Modifier
                 .fillMaxWidth(),
             //.animateContentSize(), // Add animation for smooth transition
-            color = Color.White,
+            color = customColors.PadColor,
             shadowElevation = 3.dp,
             shape = RoundedCornerShape(15.dp),
         ) {
